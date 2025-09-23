@@ -1,11 +1,9 @@
 const Dashboard = () => {
   return (
     <>
-      <header className="bg-blue-600 text-white p-4"></header>
-
-      <main className="flex-1 overflow-y-auto"></main>
-
-      <footer className="bg-gray-800 text-white p-4 mt-auto"></footer>
+      <main className="flex-grow flex items-center justify-center">
+        <h1 className="text-3xl font-bold bg-linear-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">Welcome to TaskApp</h1>
+      </main>
     </>
   );
 };
