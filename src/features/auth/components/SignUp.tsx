@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 import { loginUser } from "../authSlice";
 import type { AppDispatch, RootState } from "../../../app/store";
 
-export default function Login() {
+export default function SignUp() {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, isAuthenticated } = useSelector(
     (state: RootState) => state.auth

@@ -1,40 +1,31 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
-import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import type { LoginPayload } from "./authSchema";
+import authApi from "./authApi";
+import { removeUserData, setUserData } from "../../utils/manageUserData";
+import { GENERAL } from "../../constants/general";
 
 interface AuthState {
-  user: null | { id : string, email: string, role : string };
   loading: boolean;
   isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
-  user: null,
   loading: false,
-  isAuthenticated: !!Cookies.get("accessToken"),
+  isAuthenticated: false,
 };
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (
-    payload: { email: string; password: string; remember: boolean },
+    payload: LoginPayload,
     { rejectWithValue }
   ) => {
     try {
-      const response = await axios.post(
-        "http://localhost:4000/api/users/login",
-        payload,
-        { withCredentials: true }
-      );
-      return response.data;
+      return await authApi.login(payload);
     } catch (err) {
-      if (axios.isAxiosError(err) && err.response && err.response.data) {
-        return rejectWithValue(err.response.data.error);
-      } else {
-        return rejectWithValue("An unexpected error occurred.");
-      }
+      return rejectWithValue(err);
     }
   }
 );
@@ -44,9 +35,12 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     logout: (state) => {
-      Cookies.remove("accessToken");
-      state.user = null;
+      removeUserData();
       state.isAuthenticated = false;
+      toast.success(GENERAL.LOGOUT_SUCCESS);
+    },
+    setAuthenticated: (state, action) => {
+      state.isAuthenticated = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -56,9 +50,9 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload.user;
         state.isAuthenticated = true;
-        toast.success("Login successful!")
+        setUserData(action.payload.data.user);
+        toast.success(GENERAL.LOGIN_SUCCESS);
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
@@ -67,5 +61,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout,setAuthenticated } = authSlice.actions;
 export default authSlice.reducer;

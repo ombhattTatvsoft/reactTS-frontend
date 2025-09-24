@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
-import { logout } from "../../features/auth/authSlice";
-import type { AppDispatch } from "../../app/store";
+import { logout } from "../../../features/auth/authSlice";
+import type { AppDispatch } from "../../../app/store";
 import { useDispatch } from "react-redux";
 
 const Navbar = () => {
