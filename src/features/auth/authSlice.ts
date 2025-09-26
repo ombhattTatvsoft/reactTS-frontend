@@ -6,12 +6,10 @@ import { removeUserData, setUserData } from "../../utils/manageUserData";
 import { GENERAL } from "../../constants/general";
 
 interface AuthState {
-  loading: boolean;
   isAuthenticated: boolean;
 }
 
 const initialState: AuthState = {
-  loading: false,
   isAuthenticated: false,
 };
 
@@ -45,17 +43,12 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.pending, (state) => {
-        state.loading = true;
-      })
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.loading = false;
         state.isAuthenticated = true;
         setUserData(action.payload.data.user);
         toast.success(GENERAL.LOGIN_SUCCESS);
       })
-      .addCase(loginUser.rejected, (state, action) => {
-        state.loading = false;
+      .addCase(loginUser.rejected, (_, action) => {
         toast.error(action.payload as string);
       });
   },

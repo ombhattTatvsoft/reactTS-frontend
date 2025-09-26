@@ -13,7 +13,6 @@ const App = () => {
       try {
         const result = await baseApi.get({ endpoint: "/auth/me" });
         const user = result.data.user;
-        console.log(user);
         setUserData(user);
         dispatch(setAuthenticated(true));
       } catch {

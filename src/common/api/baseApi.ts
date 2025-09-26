@@ -1,5 +1,6 @@
 import axios, { HttpStatusCode } from "axios";
 import { removeUserData } from "../../utils/manageUserData";
+import { setAuthenticated } from "../../features/auth/authSlice";
 
 const baseUrl = "http://localhost:4000/api";
 
@@ -16,6 +17,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.status === HttpStatusCode.Unauthorized) {
       removeUserData();
+      setAuthenticated(false);
     }
     const err = error.response.data.details ? error.response.data.details[0] : error.response.data.error;
     return Promise.reject(err);
