@@ -1,6 +1,6 @@
-const userDataKey = "user_data";
+import type { user } from "../features/auth/authSlice";
 
-type user = null | { id : string, email: string, role : string };
+const userDataKey = "user_data";
 
 export const getUserData = () => {
   const data = localStorage.getItem(userDataKey);

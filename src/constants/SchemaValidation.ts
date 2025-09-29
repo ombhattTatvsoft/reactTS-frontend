@@ -4,11 +4,11 @@ export const SCHEMA = {
     EMAIL_VALID: "Enter a valid email",
     EMAIL_REQ: "Email is Required",
     PASSWORD_MAX: "Password must be 50 characters or less",
-    PASSWORD_MIN: "Password must be at least 6 characters",
+    PASSWORD_MIN: "Password must be at least 8 characters",
     PASSWORD_REQ: "Password is required",
-    // STRONG_PASSWORD:
-    //   "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
-    // CONFIRM_PASSWORD_MATCH: "New password and confirm password does not match",
+    STRONG_PASSWORD:
+      "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
+    CONFIRM_PASSWORD_MATCH: "New password and confirm password does not match",
   
     // // department schema
     // DEPARTMENT_NAME_SIZE: "Department name must be 100 characters or less",

@@ -1,23 +1,29 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, isAnyOf } from "@reduxjs/toolkit";
 import { toast } from "react-toastify";
-import type { LoginPayload } from "./authSchema";
+import type { LoginPayload, SignUpPayload } from "./authSchema";
 import authApi from "./authApi";
 import { removeUserData, setUserData } from "../../utils/manageUserData";
-import { GENERAL } from "../../constants/general";
+import type { ApiResponse } from "../../common/api/baseApi";
 
 interface AuthState {
   isAuthenticated: boolean;
+}
+export interface user{
+  id : string;
+  email: string;
+  role : string;
 }
 
 const initialState: AuthState = {
   isAuthenticated: false,
 };
 
+
 // Async thunk for login
-export const loginUser = createAsyncThunk(
+export const loginUser = createAsyncThunk<ApiResponse<{user : user}>,LoginPayload>(
   "auth/loginUser",
   async (
-    payload: LoginPayload,
+    payload,
     { rejectWithValue }
   ) => {
     try {
@@ -28,31 +34,54 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+// Async thunk for sign up
+export const SignupUser = createAsyncThunk<ApiResponse<{user : user}>,SignUpPayload>(
+  "auth/SignupUser",
+  async (
+    payload,
+    { rejectWithValue }
+  ) => {
+    try {
+      return await authApi.signup(payload);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+// Async thunk for logout
+export const logout = createAsyncThunk<ApiResponse<null>>(
+  "auth/logout",
+  async () => {
+    return await authApi.logout();
+  }
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    logout: (state) => {
-      removeUserData();
-      state.isAuthenticated = false;
-      toast.success(GENERAL.LOGOUT_SUCCESS);
-    },
     setAuthenticated: (state, action) => {
       state.isAuthenticated = action.payload;
     },
   },
   extraReducers: (builder) => {
     builder
-      .addCase(loginUser.fulfilled, (state, action) => {
-        state.isAuthenticated = true;
-        setUserData(action.payload.data.user);
-        toast.success(GENERAL.LOGIN_SUCCESS);
+      .addCase(logout.fulfilled,(state,action)=>{
+        removeUserData();
+        state.isAuthenticated = false;
+        toast.success(action.payload.message);
       })
-      .addCase(loginUser.rejected, (_, action) => {
+      .addMatcher(isAnyOf(SignupUser.fulfilled, loginUser.fulfilled), (state,action)=>{
+        state.isAuthenticated = true;
+        setUserData(action.payload.data!.user);
+        toast.success(action.payload.message);
+      })
+      .addMatcher(isAnyOf(SignupUser.rejected, loginUser.rejected), (_,action)=>{
         toast.error(action.payload as string);
-      });
+      })
   },
 });
 
-export const { logout,setAuthenticated } = authSlice.actions;
+export const { setAuthenticated } = authSlice.actions;
 export default authSlice.reducer;

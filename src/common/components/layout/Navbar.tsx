@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { logout } from "../../../features/auth/authSlice";
 import type { AppDispatch } from "../../../app/store";
 import { useDispatch } from "react-redux";
+import AppLogo from "../../../assets/icons/AppLogo";
+import { logout } from "../../../features/auth/authSlice";
 
 const Navbar = () => {
   const location = useLocation();
@@ -21,17 +22,11 @@ const Navbar = () => {
     <nav className="bg-white backdrop-blur-xl shadow-lg shadow-purple-500/10">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center space-x-2 transition-all duration-300 hover:scale-105"
           >
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
-            </div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              TaskApp
-            </h1>
+            <AppLogo />
           </Link>
 
           {/* Navigation Links */}
