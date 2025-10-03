@@ -20,18 +20,19 @@ const FormikForm = <T extends object>({
       enableReinitialize
       initialValues={initialValues}
       validationSchema={validationSchema}
-      onSubmit={async (values,{setSubmitting}) => {
+      onSubmit={async (values) => {
         await saveAction(values);
-        setSubmitting(false);
       }}
     >
-      {({isSubmitting}) => (
-        <Form>
-          {fields.map((field, index) => (
-            <FieldRenderer key={index} field={field} loading={isSubmitting}/>
-          ))}
-        </Form>
-      )}
+      {({isSubmitting}) => {
+        return <Form className="flex flex-wrap -mx-2">
+        {fields.map((field, index) => (
+          <div key={index} className={field.containerclassname}>
+            <FieldRenderer field={field} loading={isSubmitting}/>
+          </div>
+        ))}
+      </Form>
+      }}
     </Formik>
   );
 }

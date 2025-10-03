@@ -3,6 +3,9 @@ import type { FormField } from "../../utils/FormFieldGenerator";
 import FormInput from "./FormInput";
 import FormCheckBox from './FormCheckBox';
 import FormButton from "./FormButton";
+import FormSelect from "./FormSelect";
+import FormDatePicker from "./FormDatePicker";
+import FormTextArea from "./FormTextArea";
 
 interface FieldRendererProps {
   field: FormField;
@@ -27,8 +30,8 @@ const FieldRenderer : React.FC<FieldRendererProps> = ({field, loading}) => {
     case "password":
       return <FormInput {...commonProps} {...field} />;
 
-    // case "select":
-    //   return <FormSelect {...commonProps} handleChange={handleChange} />;
+    case "select":
+      return <FormSelect {...commonProps} {...field} />;
 
     case "checkbox":
       return (
@@ -39,14 +42,11 @@ const FieldRenderer : React.FC<FieldRendererProps> = ({field, loading}) => {
         />
       );
 
-    // case "datepicker":
-    //   return <FormDatePicker {...commonProps} />;
+    case "datepicker":
+      return <FormDatePicker {...commonProps} {...field} />;
 
-    // case "textarea":
-    //   return <FormTextarea {...commonProps} rows={field.rows} />;
-
-    // case "link":
-    //   return <FormLink {...field} children={field.label} />;
+    case "textarea":
+      return <FormTextArea {...commonProps} {...field} />;
 
     case "button":
     case "submit":

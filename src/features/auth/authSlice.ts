@@ -7,6 +7,7 @@ import type { ApiResponse } from "../../common/api/baseApi";
 
 interface AuthState {
   isAuthenticated: boolean;
+  isAuthLoading: boolean;
 }
 export interface user{
   id : string;
@@ -16,6 +17,7 @@ export interface user{
 
 const initialState: AuthState = {
   isAuthenticated: false,
+  isAuthLoading: true,
 };
 
 
@@ -64,6 +66,9 @@ const authSlice = createSlice({
     setAuthenticated: (state, action) => {
       state.isAuthenticated = action.payload;
     },
+    setAuthloading: (state, action) => {
+      state.isAuthLoading = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -83,5 +88,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { setAuthenticated } = authSlice.actions;
+export const { setAuthenticated,setAuthloading } = authSlice.actions;
 export default authSlice.reducer;

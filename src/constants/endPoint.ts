@@ -4,3 +4,7 @@ export const AUTH_ENDPOINTS = {
     LOGOUT : '/auth/logout',
     GOOGLE_LOGIN : 'http://localhost:4000/api/auth/google',
 }
+
+export const Project_ENDPOINTS = {
+    ADD_Project : '/project/',
+}

@@ -12,6 +12,9 @@ import OAuthButton from "../../../common/components/UI/OAuthButton";
 import GoogleIcon from "../../../assets/icons/GoogleIcon";
 import { AUTH_ENDPOINTS } from "../../../constants/endPoint";
 import { SignupUser } from "../authSlice";
+import WelcomeLogo from "./../components/WelcomeLogo";
+import LoginDivider from "../components/LoginDivider";
+import { Link } from "@mui/material";
 
 export default function SignUp() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -26,35 +29,48 @@ export default function SignUp() {
   const formFields = [
     createInputField({ type: "email", name: "email", label: "Email" }),
     createInputField({ name: "password", label: "Password", isPassword: true }),
-    createInputField({ name: "confirmpassword", label: "Confirm Password", isPassword: true }),
+    createInputField({name: "confirmpassword", label: "Confirm Password", isPassword: true }),
+    createButton({
+      name: "signup",
+      type: "submit",
+      label: "SignUp",
+      className: "w-full",
+      variant: "contained",
+      sx: { py: 1.5, fontSize: "1rem", fontWeight: 600 },
+    }),
     createReactNode(
-      <div className="flex justify-start mb-2">
-        <a href="/login" className="text-sm text-blue-600 hover:underline">Already have an account? Login</a>
+      <LoginDivider />
+    ),
+    createReactNode(
+      <OAuthButton onClick={googleLogin} label="Google" icon={<GoogleIcon />} sx={{py:1.5, fontSize: "1rem", fontWeight: 600 }}/>
+    ),
+    createReactNode(
+      <div className="text-center mt-3">
+        <p className="text-gray-500 text-md">
+          Already have an account?
+          <Link
+            href="/login"
+            underline="hover"
+            sx={{
+              color: "#7c3aed",
+              fontWeight: 500,
+            }}
+          >
+            Login
+          </Link>
+        </p>
       </div>
-    ),
-    createButton({ name: "signup", type: "submit", label: "SignUp", className: "w-full", variant: "contained"}),
-    createReactNode(
-      <div className="relative my-2">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-300" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500">Or continue with</span>
-          </div>
-        </div>
-    ),
-    createReactNode(
-      <OAuthButton onClick={googleLogin} label="Google" icon={<GoogleIcon/>} />
     )
   ];
   return (
     <>
+      <WelcomeLogo mode="signup" />
       <FormikForm
-        initialValues={{ email: "", password: "",confirmpassword:"" }}
+        initialValues={{ email: "", password: "", confirmpassword: "" }}
         validationSchema={SignupSchema}
         fields={formFields}
-        saveAction={(values) => {
-          dispatch(SignupUser(values));
+        saveAction={async (values) => {
+          await dispatch(SignupUser(values)).unwrap();
         }}
       ></FormikForm>
     </>

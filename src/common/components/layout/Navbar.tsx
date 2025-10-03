@@ -14,12 +14,13 @@ const Navbar = () => {
 
   const navItems = [
     { name: "Home", path: "/" },
+    { name: "Projects", path: "/projects" },
     { name: "Tasks", path: "/tasks" },
     { name: "Profile", path: "/profile" },
   ];
 
   return (
-    <nav className="bg-white backdrop-blur-xl shadow-lg shadow-purple-500/10">
+    <nav className="sticky top-0 bg-white backdrop-blur-xl shadow-lg shadow-purple-500/10 z-50">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         <div className="flex justify-between items-center h-16">
           <Link

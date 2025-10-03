@@ -1,23 +1,49 @@
 import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./ProtectedRoute";
-import Login from "../features/auth/components/Login";
-import Dashboard from "../features/dashboard/components/Dashboard";
+import Login from "../features/auth/pages/Login";
 import MainLayout from "../layout/MainLayout";
-import SignUp from "../features/auth/components/SignUp";
 import AuthLayout from "../layout/AuthLayout";
-import LoginPage from "../features/auth/components/NewLogin";
+import SignUp from "../features/auth/pages/SignUp";
+import Project from "../features/project/pages/Project";
+import Dashboard from "../features/dashboard/pages/Dashboard";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../app/store";
+import { useEffect } from "react";
+import baseApi from "../common/api/baseApi";
+import { setAuthenticated, setAuthloading, type user } from "../features/auth/authSlice";
+import { removeUserData, setUserData } from "../utils/manageUserData";
 
 function AppRoutes() {
+
+    const dispatch = useDispatch<AppDispatch>();
+    
+    useEffect(() => {
+      const checkAuth = async () => {
+        try {
+          const result = await baseApi.get<{user : user}>({ endpoint: "/auth/me" }).then(res => res.data);
+          const user = result.data!.user;
+          setUserData(user);
+          dispatch(setAuthenticated(true));
+        } catch {
+          removeUserData();
+          dispatch(setAuthenticated(false));
+        } finally{
+          dispatch(setAuthloading(false));
+        }
+      };
+      checkAuth();
+    }, [dispatch]);
+
   return (
     <Routes>
       <Route element={<AuthLayout />}>
-        <Route path="/login2" element={<Login />} />
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/projects" element={<Project />} />
         </Route>
       </Route>
     </Routes>

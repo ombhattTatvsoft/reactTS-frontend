@@ -1,21 +1,33 @@
 import React from 'react';
-import { Button } from '@mui/material';
+import { Button, type ButtonProps } from '@mui/material';
 import { type ReactNode } from 'react';
 
-interface OAuthButtonProps {
+interface OAuthButtonProps extends ButtonProps {
   label: string;
   icon: ReactNode;
-  onClick: () => void;
   className?: string;
 }
 
-const OAuthButton: React.FC<OAuthButtonProps> = ({ label, icon, onClick, className = '' }) => (
+const OAuthButton: React.FC<OAuthButtonProps> = ({ label, onClick, icon, className = '',sx, ...props }) => (
   <Button
     onClick={onClick}
     startIcon={icon}
     variant="outlined"
     fullWidth
     className={className}
+    sx={[
+      {
+        borderRadius: 2,
+        borderColor: "#e5e7eb",
+        color: "#4b5563",
+        "&:hover": {
+          borderColor: "#7c3aed",
+          backgroundColor: "#faf5ff",
+        },
+      },
+      ...(Array.isArray(sx) ? sx : [sx]).filter(Boolean),
+    ]}
+    {...props}
   >
     {label}
   </Button>
