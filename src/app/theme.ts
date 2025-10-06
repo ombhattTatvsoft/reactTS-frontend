@@ -1,73 +1,79 @@
 import { createTheme } from '@mui/material/styles';
 
-declare module '@mui/material/styles' {
-  interface Components {
-    MuiPickersTextField?: {
-      styleOverrides?: {
-        root?: React.CSSProperties;
-      };
-    };
-  }
-}
+const baseTheme = createTheme({
+  palette: {
+    primary: {
+      main: "#7c3aed",
+      light: "#9333ea",
+      dark: "#6d28d9",
+      contrastText: "#ffffff",
+    },
+  },
 
-const theme = createTheme({
+  typography: {
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    button: {
+      textTransform: 'none',
+    },
+  },
+
+  shape: {
+    borderRadius: 4,
+  },
+
   components: {
-    MuiFormControl: {
+    MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          backgroundColor: '#f9fafb',
-          borderRadius: '8px',
-          padding: '4px',
-        },
-      },
-    },
-    MuiFormLabel: {
-      styleOverrides: {
-        root: {
-          color: '#1f2937',
-          fontSize: '0.875rem',
-          fontWeight: 500,
-        },
-      },
-    },
-    
-    MuiInputBase: {
-      styleOverrides: {
-        root: {
-          color: '#1f2937',
-          fontSize: '1rem',
-          // Apply styles that would affect section content
-          '& [class*="MuiPickersSectionList-sectionContent"]': {
-            padding: '2px 4px',
-            '&:focus': {
-              backgroundColor: '#eff6ff',
-              borderRadius: '4px',
-            },
+          borderRadius: 8,
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#7c3aed',
           },
-          '& [class*="MuiPickersSectionList-sectionSeparator"]': {
-            color: '#6b7280',
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderWidth: '1px',
           },
         },
+        notchedOutline: {
+          borderColor: '#e5e7eb',
+        },
       },
     },
-    MuiInputAdornment: {
+    // MuiInputAdornment: {
+    //   styleOverrides: {
+    //     root: {
+    //       '& .MuiIconButton-root': {
+    //         color: '#3b82f6',
+    //         '&:hover': {
+    //           backgroundColor: '#eff6ff',
+    //           borderRadius: '50%',
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
+  },
+});
+
+const theme = createTheme(baseTheme, {
+  components: {
+    MuiPickersOutlinedInput:{
       styleOverrides: {
         root: {
-          '& .MuiIconButton-root': {
-            color: '#3b82f6',
-            '&:hover': {
-              backgroundColor: '#eff6ff',
-              borderRadius: '50%',
-            },
+          borderRadius: 8,
+          '&:hover .MuiPickersOutlinedInput-notchedOutline': {
+            borderColor: '#7c3aed',
+          },
+          '&.Mui-focused .MuiPickersOutlinedInput-notchedOutline': {
+            borderWidth: '1px',
           },
         },
       },
     },
-    MuiPickersTextField: {
+    MuiPickersDay: {
       styleOverrides: {
         root: {
-          color: '#1f2937',
-          fontSize: '1rem',
+
+          borderRadius: 8,
         },
       },
     },

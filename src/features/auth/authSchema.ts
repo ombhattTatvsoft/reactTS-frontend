@@ -16,6 +16,10 @@ export const loginSchema = Yup.object().shape({
 export type LoginPayload = Yup.InferType<typeof loginSchema>;
 
 export const SignupSchema = Yup.object().shape({
+  name: Yup.string()
+  .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/,SCHEMA.NAME_VALID)
+  .max(50, SCHEMA.NAME_MAX)
+  .required(SCHEMA.NAME_REQ),
   email: Yup.string()
     .email(SCHEMA.EMAIL_VALID)
     .max(50, SCHEMA.EMAIL_MAX)

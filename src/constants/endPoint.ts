@@ -7,4 +7,5 @@ export const AUTH_ENDPOINTS = {
 
 export const Project_ENDPOINTS = {
     ADD_Project : '/project/',
+    GET_PROJECTS: '/project/',
 }

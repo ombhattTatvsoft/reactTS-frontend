@@ -27,6 +27,7 @@ export default function SignUp() {
   };
 
   const formFields = [
+    createInputField({ type: "text", name: "name", label: "Name" }),
     createInputField({ type: "email", name: "email", label: "Email" }),
     createInputField({ name: "password", label: "Password", isPassword: true }),
     createInputField({name: "confirmpassword", label: "Confirm Password", isPassword: true }),
@@ -66,7 +67,7 @@ export default function SignUp() {
     <>
       <WelcomeLogo mode="signup" />
       <FormikForm
-        initialValues={{ email: "", password: "", confirmpassword: "" }}
+        initialValues={{ name:"",email: "", password: "", confirmpassword: "" }}
         validationSchema={SignupSchema}
         fields={formFields}
         saveAction={async (values) => {

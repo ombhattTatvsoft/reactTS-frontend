@@ -11,8 +11,9 @@ export const createProjectSchema = Yup.object().shape({
   // priority: Yup.string().oneOf(["low", "medium", "high"]).default("medium"),
   members: Yup.array().of(
       Yup.object().shape({
-        user: Yup.string().matches(/^[0-9a-fA-F]{24}$/).required(),
-        role: Yup.string().oneOf(["owner", "manager", "developer"]).default("developer"),
+        email: Yup.string().email(SCHEMA.EMAIL_VALID).max(50, SCHEMA.EMAIL_MAX).required(SCHEMA.EMAIL_REQ),
+        // user: Yup.string().matches(/^[0-9a-fA-F]{24}$/).required(SCHEMA.MEMBER_REQ),
+        role: Yup.string().oneOf(["manager", "developer", "tester"]).default("developer"),
       })
     )
     .default([]),

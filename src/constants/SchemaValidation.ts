@@ -1,6 +1,8 @@
 export const SCHEMA = {  
   // General
   NAME_REQ: "Name is Required",
+  NAME_MAX: "Name must be 50 characters or less",
+  NAME_VALID:"Name is not valid",
   EMAIL_REQ: "Email is Required",
   EMAIL_VALID: "Enter a valid email",
   EMAIL_MAX: "Email must be 50 characters or less",
@@ -20,5 +22,6 @@ export const SCHEMA = {
 
   // project schema
   PROJECT_MAX: "Name must be 30 characters or less",
-  DESC_MAX: "Description must be 200 characters or less"
+  DESC_MAX: "Description must be 200 characters or less",
+  MEMBER_REQ: "Member is required"
 };

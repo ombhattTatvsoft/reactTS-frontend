@@ -9,10 +9,12 @@ interface AuthState {
   isAuthenticated: boolean;
   isAuthLoading: boolean;
 }
+
 export interface user{
-  id : string;
+  _id : string;
+  name: string;
   email: string;
-  role : string;
+  role? : string;
 }
 
 const initialState: AuthState = {

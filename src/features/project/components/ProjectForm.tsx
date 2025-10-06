@@ -4,21 +4,23 @@ import {
   createButton,
   createDatePicker,
   createInputField,
+  createReactNode,
   createSelectDropdown,
   createTextArea,
 } from "../../../common/utils/FormFieldGenerator";
 import { createProjectSchema, type ProjectPayload } from "../projectSchema";
 import type { AppDispatch } from "../../../app/store"; 
-import { createProject } from "../projectSlice";
+import { createProject, getProjects } from "../projectSlice";
 import { startOfToday, addMonths } from "date-fns";
+import { MemberFields } from "./AddMember";
 
 interface ProjectFormProps {
   initialValues: ProjectPayload | null;
+  setShowModal: (value : boolean) => void;
 }
 
-const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues }) => {
+const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues,setShowModal }) => {
     const dispatch = useDispatch<AppDispatch>();
-  
   const formFields = [
     createInputField({ name: "name", label: "Project Name", type: "text", containerclassname:"w-1/2 px-2"}),
     createSelectDropdown({
@@ -43,11 +45,13 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues }) => {
     //     { value: "high", label: "High" },
     //   ],
     // }),
+    createReactNode(<MemberFields></MemberFields>),
     createButton({
       name: "submit",
       type: "submit",
       label: initialValues ? "Update Project" : "Create Project",
       variant: "contained",
+      sx:{paddingX:2,paddingY:1},
       containerclassname:"px-2 w-full flex align-center justify-end",
     }),
   ];
@@ -68,7 +72,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues }) => {
     <FormikForm
       initialValues={newIntialValues}
       validationSchema={createProjectSchema}
-      saveAction={async (values) => {await dispatch(createProject(values)).unwrap()}}
+      saveAction={ async (values) => {await dispatch(createProject(values)).unwrap().then(() => dispatch(getProjects()));
+        setShowModal(false);
+       }}
       fields={formFields}
     />
   );
