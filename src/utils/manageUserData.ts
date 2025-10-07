@@ -2,7 +2,7 @@ import type { user } from "../features/auth/authSlice";
 
 const userDataKey = "user_data";
 
-export const getUserData = () => {
+export const getUserData = () : user => {
   const data = localStorage.getItem(userDataKey);
   return data ? JSON.parse(data) : null;
 };

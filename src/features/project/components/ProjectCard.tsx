@@ -2,6 +2,7 @@ import { Calendar, Edit2, Trash2, Users } from "lucide-react";
 import Card from "../../../common/components/UI/Card";
 import type { user } from "../../auth/authSlice";
 import type { ProjectMember } from "../projectSlice";
+import { Avatar, AvatarGroup, Tooltip } from "@mui/material";
 
 interface projectCardProps {
   name: string;
@@ -11,6 +12,7 @@ interface projectCardProps {
   endDate: string;
   status: string;
   members: ProjectMember[];
+  pendingMembers: Omit<user, "_id">[];
   // priority?: string;
   // progress: number;
 }
@@ -23,6 +25,7 @@ const ProjectCard: React.FC<projectCardProps> = ({
   endDate,
   status,
   members,
+  pendingMembers,
   // priority,
   // progress,
 }) => {
@@ -63,32 +66,76 @@ const ProjectCard: React.FC<projectCardProps> = ({
               {startDate.substring(0, 10)} - {endDate.substring(0, 10)}
             </span>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-semibold status-${status}`}>
+          <span
+            className={`px-3 py-1 rounded-full text-xs font-semibold status-${status}`}
+          >
             {status}
           </span>
         </div>
 
-        {members.length > 0 && (
-          <div>
-            <h4 className="text-sm font-semibold text-gray-800 mb-2">Team</h4>
-            <div className="flex flex-wrap gap-2">
-              {members.map((member) => (
-                <div
-                  key={member.user._id}
-                  className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full border border-gray-200 shadow-sm"
-                >
-                  <div className="w-6 h-6 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs uppercase font-bold">
-                    {member.user.name.charAt(0)}
-                  </div>
-                  <span className="text-xs font-medium text-gray-700">
-                    {member.user.name} ({member.role})
-                  </span>
-                </div>
-              ))}
+          <div className="flex justify-between">
+            {members.length > 0 && (
+              <div>
+              <h4 className="text-sm font-semibold text-gray-800 mb-2">Team</h4>
+              <div className="flex">
+                <AvatarGroup max={6}>
+                  {members.map((member) => (
+                    <Tooltip
+                      key={member.user._id}
+                      title={`${member.user.name} (${member.role})`}
+                      arrow
+                    >
+                      <Avatar
+                        sx={{
+                          background:
+                            "linear-gradient(to right, #6366F1, #8B5CF6)",
+                          fontSize: 14,
+                          height: 36,
+                          width: 36,
+                        }}
+                      >
+                        {member.user.name
+                          .split(" ")
+                          .map((p) => p.charAt(0))
+                          .join("")}
+                      </Avatar>
+                    </Tooltip>
+                  ))}
+                </AvatarGroup>
+              </div>
             </div>
+            )}
+            {pendingMembers.length > 0 && (
+              <div>
+              <h4 className="text-sm font-semibold text-gray-800 mb-2">Pending members</h4>
+              <div className="flex">
+                <AvatarGroup max={6}>
+                  {pendingMembers.map((member) => (
+                    <Tooltip
+                      title={`${member.email} (${member.role})`}
+                      arrow
+                    >
+                      <Avatar
+                        sx={{
+                          background:
+                            "linear-gradient(to right, #6366F1, #8B5CF6)",
+                          fontSize: 14,
+                          height: 36,
+                          width: 36,
+                        }}
+                      >
+                        {member.email
+                          .split(" ")
+                          .map((p) => p.charAt(0))
+                          .join("")}
+                      </Avatar>
+                    </Tooltip>
+                  ))}
+                </AvatarGroup>
+              </div>
+            </div>
+            )}
           </div>
-        )}
-
       </div>
     </Card>
   );

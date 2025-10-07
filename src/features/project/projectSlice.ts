@@ -30,6 +30,7 @@ export interface Project {
   status: 'pending' | 'in-progress' | 'completed';
   owner: user;
   members: ProjectMember[];
+  pendingMembers: Omit<user,"_id">[];
   createdAt: string;
   updatedAt: string;
   __v: number;
