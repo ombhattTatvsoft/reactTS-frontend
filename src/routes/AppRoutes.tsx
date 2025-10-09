@@ -4,7 +4,6 @@ import Login from "../features/auth/pages/Login";
 import MainLayout from "../layout/MainLayout";
 import AuthLayout from "../layout/AuthLayout";
 import SignUp from "../features/auth/pages/SignUp";
-import Project from "../features/project/pages/Project";
 import Dashboard from "../features/dashboard/pages/Dashboard";
 import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../app/store";
@@ -12,6 +11,8 @@ import { useEffect } from "react";
 import baseApi from "../common/api/baseApi";
 import { setAuthenticated, setAuthloading, type user } from "../features/auth/authSlice";
 import { removeUserData, setUserData } from "../utils/manageUserData";
+import Project from "../features/project/pages/Project";
+// import TaskPage from "../features/task/pages/TaskPage";
 
 function AppRoutes() {
 
@@ -44,6 +45,7 @@ function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/projects" element={<Project />} />
+          {/* <Route path="/projects/:id" element={<TaskPage />} /> */}
         </Route>
       </Route>
     </Routes>

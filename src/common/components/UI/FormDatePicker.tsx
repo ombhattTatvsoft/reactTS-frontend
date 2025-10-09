@@ -7,7 +7,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { format, parseISO } from "date-fns";
 
 interface DatePickerProps extends DatePickerField {
-  value?: string | null;
+  value: string | Date;
   onChange?: (event: {
     target: { name: string; value: string | null };
   }) => void;

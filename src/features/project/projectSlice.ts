@@ -5,48 +5,51 @@ import type { ProjectPayload } from "./projectSchema";
 import projectApi from "./projectApi";
 import type { user } from "../auth/authSlice";
 
-interface projectState {
+export type projectRole = "manager" | "developer" | "tester" | "owner";
+
+interface projectState extends ProjectsResponse {
   loading: boolean;
-  projects: Project[];
 }
 
 const initialState: projectState = {
   loading: false,
-  projects: []
+  projects: {
+    myProjects: [],
+    assignedProjects: [],
+  },
 };
 
 export interface ProjectMember {
   user: user;
-  role: string;
+  role: projectRole;
   joinedAt: string;
 }
 
 export interface Project {
   _id: string;
   name: string;
-  description?: string;
-  startDate: string;
-  endDate: string;
-  status: 'pending' | 'in-progress' | 'completed';
+  description: string;
+  startDate: Date;
+  endDate: Date;
+  status: "pending" | "in-progress" | "completed";
   owner: user;
   members: ProjectMember[];
-  pendingMembers: Omit<user,"_id">[];
+  pendingMembers: [{ name: string; email: string; role: Exclude<projectRole,"owner"> }];
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
 export interface ProjectsResponse {
-  projects: Project[];
+  projects: {
+    myProjects: Project[];
+    assignedProjects: Project[];
+  };
 }
 
-
-export const createProject = createAsyncThunk<ApiResponse,ProjectPayload>(
+export const createProject = createAsyncThunk<ApiResponse, ProjectPayload>(
   "project/createProject",
-  async (
-    payload,
-    { rejectWithValue }
-  ) => {
+  async (payload, { rejectWithValue }) => {
     try {
       return await projectApi.createProject(payload);
     } catch (err) {
@@ -55,12 +58,31 @@ export const createProject = createAsyncThunk<ApiResponse,ProjectPayload>(
   }
 );
 
+export const editProject = createAsyncThunk<ApiResponse, ProjectPayload>(
+  "project/editProject",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await projectApi.editProject(payload);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const deleteProject = createAsyncThunk<ApiResponse,string>(
+  "project/deleteProject",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await projectApi.deleteProject(id);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 export const getProjects = createAsyncThunk<ApiResponse<ProjectsResponse>>(
   "project/getProjects",
-  async (
-    _,
-    { rejectWithValue }
-  ) => {
+  async (_, { rejectWithValue }) => {
     try {
       return await projectApi.getProjects();
     } catch (err) {
@@ -72,26 +94,36 @@ export const getProjects = createAsyncThunk<ApiResponse<ProjectsResponse>>(
 const projectSlice = createSlice({
   name: "project",
   initialState,
-  reducers: {
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(createProject.fulfilled,(state,action)=>{
-        state.loading = false;
-        toast.success(action.payload.message);
-      })
-      .addCase(getProjects.fulfilled,(state,action)=>{
+      .addCase(getProjects.fulfilled, (state, action) => {
         state.loading = false;
         state.projects = action.payload.data!.projects;
       })
-      .addMatcher(isAnyOf(createProject.pending, getProjects.pending), (state)=>{
-        state.loading = true;
-      })
-      .addMatcher(isAnyOf(createProject.rejected, getProjects.rejected), (state,action)=>{
-        state.loading = false;
-        toast.error(action.payload as string);
-      })
+      .addMatcher(
+        isAnyOf(createProject.fulfilled, editProject.fulfilled,deleteProject.fulfilled),
+        (state, action) => {
+          state.loading = false;
+          toast.success(action.payload.message);
+        }
+      )
+      .addMatcher(
+        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending),
+        (state) => {
+          state.loading = true;
+        }
+      )
+      .addMatcher(
+        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected),
+        (state, action) => {
+          state.loading = false;
+          toast.error(action.payload as string);
+        }
+      );
   },
 });
+
+
 
 export default projectSlice.reducer;
