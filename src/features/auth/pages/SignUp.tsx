@@ -36,7 +36,6 @@ export default function SignUp() {
       type: "submit",
       label: "SignUp",
       className: "w-full",
-      variant: "contained",
       sx: { py: 1.5, fontSize: "1rem", fontWeight: 600 },
     }),
     createReactNode(

@@ -19,7 +19,10 @@ const CommonModal: React.FC<CommonModalProps> = ({
 }) => (
   <Dialog
     open={open}
-    onClose={onClose}
+    onClose={(_, reason) => {
+      if (reason === "backdropClick" || reason === "escapeKeyDown") return;
+      onClose();
+    }}
     maxWidth={width}
     fullWidth
     sx={{

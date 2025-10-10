@@ -1,4 +1,4 @@
-import axios, { HttpStatusCode } from "axios";
+import axios, { HttpStatusCode, type AxiosRequestConfig } from "axios";
 import { removeUserData } from "../../utils/manageUserData";
 import { setAuthenticated } from "../../features/auth/authSlice";
 
@@ -13,6 +13,7 @@ interface RequestParams<T = unknown> {
   endpoint: string;
   params?: Record<string, unknown>;
   data?: T;
+  config?: AxiosRequestConfig;
 }
 
 const api = axios.create({
@@ -38,14 +39,17 @@ api.interceptors.response.use(
 );
 
 const baseApi = {
-  get: async <R>({ endpoint, params }: RequestParams) =>
-    await api.get<ApiResponse<R>>(endpoint, { params }),
-  post: async <T,R>({ endpoint, data }: RequestParams<T>) =>
-    await api.post<ApiResponse<R>>(endpoint, data),
-  put: async <T,R>({ endpoint, data }: RequestParams<T>) =>
-    await api.put<ApiResponse<R>>(endpoint, data),
-  delete: async <R>({ endpoint, params }: RequestParams) =>
-    await api.delete<ApiResponse<R>>(endpoint, { params }),
+  get: async <R>({ endpoint, params, config }: RequestParams) =>
+    await api.get<ApiResponse<R>>(endpoint, { params, ...config }),
+
+  post: async <T, R>({ endpoint, data, config }: RequestParams<T>) =>
+    await api.post<ApiResponse<R>>(endpoint, data, config),
+
+  put: async <T, R>({ endpoint, data, config }: RequestParams<T>) =>
+    await api.put<ApiResponse<R>>(endpoint, data, config),
+
+  delete: async <R>({ endpoint, params, config }: RequestParams) =>
+    await api.delete<ApiResponse<R>>(endpoint, { params, ...config }),
 };
 
 export default baseApi;

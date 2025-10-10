@@ -3,6 +3,9 @@ import { Bell } from "lucide-react";
 import Dropdown from "../UI/Dropdown";
 import socket, { joinUserRoom } from "../../../utils/socket";
 import { getUserData } from "../../../utils/manageUserData";
+import baseApi from "../../api/baseApi";
+import { NOTIFICATION_ENDPOINTS } from "../../../constants/endPoint";
+import { toast } from "react-toastify";
 
 interface Notification {
   _id: string;
@@ -36,35 +39,34 @@ const NotificationsDropdown: React.FC = () => {
   }, [userId]);
 
   // Fetch existing notifications from backend
-//   useEffect(() => {
-//     const fetchNotifications = async () => {
-//       try {
-//         const res = await fetch("/api/notifications", {
-//           credentials: "include",
-//         });
-//         if (!res.ok) throw new Error("Failed to fetch notifications");
-//         const data: Notification[] = await res.json();
-//         setNotifications(data);
-//       } catch (err) {
-//         console.error(err);
-//       }
-//     };
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const res = await baseApi.get<{notifications : Notification[]}>({
+          endpoint: NOTIFICATION_ENDPOINTS.GET_NOTIFICATIONS,
+        });
+        if (res.data?.data) {
+          setNotifications(res.data.data.notifications);
+        }
+      } catch (err) {
+        toast.error(err as string);
+      }
+    };
 
-//     fetchNotifications();
-//   }, []);
+    fetchNotifications();
+  }, []);
 
   // Mark all notifications as read
-//   const markAllAsRead = async () => {
-//     try {
-//       await fetch("/api/notifications/mark-read", {
-//         method: "PATCH",
-//         credentials: "include",
-//       });
-//       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   };
+  const markAllAsRead = async () => {
+    try {
+      await baseApi.put({
+        endpoint: NOTIFICATION_ENDPOINTS.MARK_ALL_READ,
+      });
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    } catch (err) {
+      toast.error(err as string);
+    }
+  };
 
   const trigger = (
     <div className="flex justify-center">
@@ -82,13 +84,12 @@ const NotificationsDropdown: React.FC = () => {
   return (
     <Dropdown trigger={trigger} width="w-80">
       <div className="px-4 py-2 border-b border-purple-100 flex justify-between items-center sticky top-0 bg-white z-10">
-        <h3 className="font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+        <h3 className="font-bold fancy-text">
           Notifications
         </h3>
         {unreadCount > 0 && (
           <button
-            // onClick={markAllAsRead}
-            onClick={() => console.log('will mark in future')}
+            onClick={markAllAsRead}
             className="text-xs text-purple-600 hover:text-purple-800 font-semibold hover:underline transition-colors duration-300"
           >
             Mark all as read

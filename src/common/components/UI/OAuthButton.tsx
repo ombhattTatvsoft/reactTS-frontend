@@ -19,6 +19,7 @@ const OAuthButton: React.FC<OAuthButtonProps> = ({ label, onClick, icon, classNa
       {
         borderRadius: 2,
         borderColor: "#e5e7eb",
+        transition: 'all 0.25s ease-in-out',
         color: "#4b5563",
         "&:hover": {
           borderColor: "#7c3aed",

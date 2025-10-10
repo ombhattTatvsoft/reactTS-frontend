@@ -9,9 +9,10 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch } from "../app/store";
 import { useEffect } from "react";
 import baseApi from "../common/api/baseApi";
-import { setAuthenticated, setAuthloading, type user } from "../features/auth/authSlice";
+import { setAuthenticated, setAuthloading, setUser, type user } from "../features/auth/authSlice";
 import { removeUserData, setUserData } from "../utils/manageUserData";
 import Project from "../features/project/pages/Project";
+import ProfilePage from "../features/profile/pages/ProfilePage";
 // import TaskPage from "../features/task/pages/TaskPage";
 
 function AppRoutes() {
@@ -24,6 +25,7 @@ function AppRoutes() {
           const result = await baseApi.get<{user : user}>({ endpoint: "/auth/me" }).then(res => res.data);
           const user = result.data!.user;
           setUserData(user);
+          dispatch(setUser(user));
           dispatch(setAuthenticated(true));
         } catch {
           removeUserData();
@@ -45,6 +47,7 @@ function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/projects" element={<Project />} />
+          <Route path="/profile" element={<ProfilePage />} />
           {/* <Route path="/projects/:id" element={<TaskPage />} /> */}
         </Route>
       </Route>

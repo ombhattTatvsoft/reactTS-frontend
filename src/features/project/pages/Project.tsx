@@ -6,7 +6,12 @@ import ProjectForm from "../components/ProjectForm";
 import type { ProjectPayload } from "../projectSchema";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../app/store";
-import { deleteProject, getProjects, type Project, type projectRole } from "../projectSlice";
+import {
+  deleteProject,
+  getProjects,
+  type Project,
+  type projectRole,
+} from "../projectSlice";
 import Loader from "../../../common/components/UI/Loader";
 import ProjectSection from "../components/ProjectSection";
 import DeleteModal from "../../../common/components/UI/DeleteModal";
@@ -63,14 +68,16 @@ const ProjectPage = () => {
   const handleDeleteClick = useCallback((id: string) => {
     setSelectedId(id);
     setDeleteModalOpen(true);
-  },[]);
+  }, []);
 
   const handleDeleteConfirm = useCallback(async () => {
     if (!selectedId) return;
-    await dispatch(deleteProject(selectedId)).unwrap().then(async () => await dispatch(getProjects()));
+    await dispatch(deleteProject(selectedId))
+      .unwrap()
+      .then(async () => await dispatch(getProjects()));
     setDeleteModalOpen(false);
     setSelectedId(null);
-  },[selectedId,dispatch]);
+  }, [selectedId, dispatch]);
 
   const handleDeleteCancel = () => {
     setDeleteModalOpen(false);
@@ -96,18 +103,19 @@ const ProjectPage = () => {
         <FormButton
           type="button"
           name="addProject"
-          variant="contained"
           label="New Project"
+          className=""
           onClick={() => {
             setEditingProject(null);
             setShowModal(true);
           }}
-          className="transform hover:-translate-y-0.5"
           startIcon={<Plus size={20} />}
           sx={{
             px: 3,
             py: 1.5,
-            textTransform: "none",
+            "&:hover": {
+              transform: "scale(1.05)",
+            },
           }}
         />
       </div>
