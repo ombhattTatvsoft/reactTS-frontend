@@ -5,13 +5,13 @@ import { FormHelperText, FormControl } from "@mui/material";
 import type { DatePickerField } from "../../utils/FormFieldGenerator";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { format, parseISO } from "date-fns";
+import type { FormikValues } from "formik";
 
 interface DatePickerProps extends DatePickerField {
-  value: string | Date;
-  onChange?: (event: {
-    target: { name: string; value: string | null };
-  }) => void;
+  value: string | Date | null;
+  onChange?: (event: { target: { name: string; value: string | null } }) => void;
   error?: string;
+  formikValues?: FormikValues;
 }
 
 const FormDatePicker: React.FC<DatePickerProps> = ({
@@ -25,6 +25,22 @@ const FormDatePicker: React.FC<DatePickerProps> = ({
       <div className="mb-3">
         <FormControl fullWidth>
           <DatePicker
+            minDate={
+              muiProps.minDatefunc && muiProps.formikValues
+                ? (() => {
+                    const result = muiProps.minDatefunc(muiProps.formikValues);
+                    return typeof result === "string" ? parseISO(result) : result;
+                  })()
+                : undefined
+            }
+            maxDate={
+              muiProps.maxDatefunc && muiProps.formikValues
+                ? (() => {
+                    const result = muiProps.maxDatefunc(muiProps.formikValues);
+                    return typeof result === "string" ? parseISO(result) : result;
+                  })()
+                : undefined
+            }
             {...muiProps}
             value={
               value

@@ -23,6 +23,7 @@ interface ProjectFormProps {
 const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues,setShowModal }) => {
   const dispatch = useDispatch<AppDispatch>();
   const today = startOfToday();
+  const isUpdate = Boolean(initialValues);
   const newInitialValues = useMemo(
     () => ({
       _id:initialValues?._id,
@@ -48,8 +49,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues,setShowModal })
       ],
       containerclassname:"w-1/2 px-2"
     }),
-    createDatePicker({ name: "startDate", label: "Start Date", containerclassname:"w-1/2 px-2", minDate:today }),
-    createDatePicker({ name: "endDate", label: "End Date", containerclassname:"w-1/2 px-2", minDate:today }),
+    createDatePicker({ name: "startDate", label: "Start Date", containerclassname:"w-1/2 px-2", disablePast:!isUpdate, maxDatefunc:(values) => values.endDate }),
+    createDatePicker({ name: "endDate", label: "End Date", containerclassname:"w-1/2 px-2",minDatefunc:(values) => values.startDate || today }),
     createTextArea({ name: "description", label: "Description", containerclassname:"w-full px-2"}),
     // createSelectDropdown({
     //   name: "priority",
@@ -69,7 +70,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues,setShowModal })
       sx:{paddingX:2,paddingY:1},
       containerclassname:"px-2 w-full flex align-center justify-end",
     }),
-  ],[initialValues,today]);
+  ],[initialValues, isUpdate, today]);
 
   const handleAdd = useCallback(
     async (values: ProjectPayload) => {
@@ -90,7 +91,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues,setShowModal })
   return (
     <FormikForm
       initialValues={newInitialValues}
-      validationSchema={createProjectSchema}
+      validationSchema={createProjectSchema(isUpdate)}
       saveAction={initialValues ? handleEdit : handleAdd}
       fields={formFields}
     />

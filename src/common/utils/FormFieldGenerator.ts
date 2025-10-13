@@ -1,5 +1,6 @@
 import type { ButtonProps, CheckboxProps, MenuItemProps, SelectProps, TextFieldProps } from "@mui/material";
 import type { DatePickerProps } from "@mui/x-date-pickers/DatePicker";
+import type { FormikValues } from "formik";
 
 type SelectOption = { value: string | number; label: string; muiProps?: MenuItemProps };
 
@@ -32,8 +33,8 @@ export interface ButtonField extends BaseField,Omit<ButtonProps,"name"> {
 
 export interface DatePickerField extends BaseField,Omit<DatePickerProps<true>,"name" | "label" | "value" | "onChange"> {
   type: "datepicker";
-  minDate?: Date;
-  maxDate?: Date;
+  minDatefunc? : (values : FormikValues) => Date;
+  maxDatefunc? : (values : FormikValues) => Date;
 }
 
 export interface TextAreaField extends BaseField,Omit<TextFieldProps, "label" | "name" | "error"> {

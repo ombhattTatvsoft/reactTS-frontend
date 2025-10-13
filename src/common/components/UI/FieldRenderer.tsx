@@ -1,4 +1,4 @@
-import { useField } from "formik";
+import { useField, useFormikContext, type FormikValues } from "formik";
 import type { FormField } from "../../utils/FormFieldGenerator";
 import FormInput from "./FormInput";
 import FormCheckBox from './FormCheckBox';
@@ -13,6 +13,8 @@ interface FieldRendererProps {
 }
 const FieldRenderer : React.FC<FieldRendererProps> = ({field, loading}) => {
   const [formikField, meta] = useField(field.name as string);
+  const { values } = useFormikContext<FormikValues>();
+
   if(field.type === "ReactNode")
     return field.component;
   const error = meta.touched && meta.error ? meta.error : undefined;
@@ -43,7 +45,7 @@ const FieldRenderer : React.FC<FieldRendererProps> = ({field, loading}) => {
       );
 
     case "datepicker":
-      return <FormDatePicker {...commonProps} {...field} />;
+      return <FormDatePicker {...commonProps} {...field} formikValues={values}/>;
 
     case "textarea":
       return <FormTextArea {...commonProps} {...field} />;
