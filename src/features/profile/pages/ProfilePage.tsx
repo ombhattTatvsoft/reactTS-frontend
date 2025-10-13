@@ -5,11 +5,19 @@ import Card from "../../../common/components/UI/Card";
 import FormButton from "../../../common/components/UI/FormButton";
 import FormInput from "../../../common/components/UI/FormInput";
 import { getUserData, setUserData } from "../../../utils/manageUserData";
-import { createButton, createInputField, type FormField } from "../../../common/utils/FormFieldGenerator";
-import { ChangePasswordSchema, type ChangePasswordPayload } from "../../auth/authSchema";
+import {
+  createButton,
+  createInputField,
+  type FormField,
+} from "../../../common/utils/FormFieldGenerator";
+import {
+  ChangePasswordSchema,
+  type ChangePasswordPayload,
+} from "../../auth/authSchema";
 import type { AppDispatch } from "../../../app/store";
 import FormikForm from "../../../common/components/UI/FormikForm";
 import { updateUserPassword, updateUserProfile } from "../../auth/authSlice";
+import { backendUrl } from "../../../common/api/baseApi";
 
 const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -24,7 +32,7 @@ const ProfilePage = () => {
     }),
     [userData]
   );
-  
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [editForm, setEditForm] = useState(initialEditForm);
 
@@ -79,13 +87,7 @@ const ProfilePage = () => {
   };
 
   const handlePasswordChange = async (values: ChangePasswordPayload) => {
-    try {
-      await dispatch(updateUserPassword(values)).unwrap();
-      alert("Password changed successfully!");
-    } catch (error) {
-      console.error("Password change failed:", error);
-      alert("Failed to change password.");
-    }
+    await dispatch(updateUserPassword(values)).unwrap();
   };
 
   const cancelEdit = () => {
@@ -96,31 +98,31 @@ const ProfilePage = () => {
 
   const passwordFields: FormField[] = [
     createInputField({
-        type: "text",
-        name: "currentPassword",
-        label: "Current Password",
-        isPassword: true,
-      }),
-      createInputField({
-        type: "text",
-        name: "newPassword",
-        label: "New Password",
-        isPassword: true,
-      }),
-      createInputField({
-        type: "text",
-        name: "confirmPassword",
-        label: "Confirm New Password",
-        isPassword: true,
-      }),
-      createButton({
-        type: "submit",
-        label: "Update Password",
-        name: "updatePassword",
-        className: "w-full",
-        startIcon: <Save className="w-4 h-4" />,
-        sx:{paddingY:1.5}
-      })
+      type: "text",
+      name: "currentPassword",
+      label: "Current Password",
+      isPassword: true,
+    }),
+    createInputField({
+      type: "text",
+      name: "newPassword",
+      label: "New Password",
+      isPassword: true,
+    }),
+    createInputField({
+      type: "text",
+      name: "confirmPassword",
+      label: "Confirm New Password",
+      isPassword: true,
+    }),
+    createButton({
+      type: "submit",
+      label: "Update Password",
+      name: "updatePassword",
+      className: "w-full",
+      startIcon: <Save className="w-4 h-4" />,
+      sx: { paddingY: 1.5 },
+    }),
   ];
 
   return (
@@ -140,7 +142,13 @@ const ProfilePage = () => {
               <div className="relative inline-block mb-3">
                 {editForm.avatar || userData.avatar ? (
                   <img
-                    src={editForm.avatar || userData.avatar}
+                    src={
+                      editForm.avatar
+                        ? editForm.avatar.startsWith("data:")
+                          ? editForm.avatar
+                          : backendUrl + editForm.avatar
+                        : backendUrl + userData.avatar
+                    }
                     alt="Profile"
                     className="w-32 h-32 rounded-full object-cover border-4 border-purple-100"
                   />

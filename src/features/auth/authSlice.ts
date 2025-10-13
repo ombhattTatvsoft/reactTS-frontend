@@ -73,6 +73,7 @@ export const updateUserProfile = createAsyncThunk<
     try {
       return await authApi.updateProfile(formData);
     } catch (err) {
+      console.log(err)
       return rejectWithValue(err);
     }
   }
@@ -128,6 +129,7 @@ const authSlice = createSlice({
       .addMatcher(isAnyOf(SignupUser.fulfilled, loginUser.fulfilled), (state,action)=>{
         state.isAuthenticated = true;
         state.isAuthLoading = false;
+        state.user = action.payload.data!.user;
         setUserData(action.payload.data!.user);
         toast.success(action.payload.message);
       })

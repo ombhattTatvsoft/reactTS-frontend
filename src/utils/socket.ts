@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
+import { backendUrl } from "../common/api/baseApi";
 
-const socket = io("http://localhost:4000"); // your backend URL
+const socket = io(backendUrl.replace('/api','')); // your backend URL
 
 export const joinUserRoom = (userId: string) => {
   socket.emit("joinUserRoom", userId);

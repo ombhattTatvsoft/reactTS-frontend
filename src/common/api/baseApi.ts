@@ -2,7 +2,7 @@ import axios, { HttpStatusCode, type AxiosRequestConfig } from "axios";
 import { removeUserData } from "../../utils/manageUserData";
 import { setAuthenticated } from "../../features/auth/authSlice";
 
-const baseUrl = "http://localhost:4000/api";
+export const backendUrl = "http://localhost:4000/api";
 
 export interface ApiResponse<T = unknown> {
   message: string;
@@ -17,7 +17,7 @@ interface RequestParams<T = unknown> {
 }
 
 const api = axios.create({
-  baseURL: baseUrl,
+  baseURL: backendUrl,
   headers: {
     "Content-Type": "application/json",
   },

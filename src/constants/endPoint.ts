@@ -1,8 +1,10 @@
+import { backendUrl } from "../common/api/baseApi"
+
 export const AUTH_ENDPOINTS = {
     LOGIN : '/auth/login',
     SIGNUP : '/auth/signup',
     LOGOUT : '/auth/logout',
-    GOOGLE_LOGIN : 'http://localhost:4000/api/auth/google',
+    GOOGLE_LOGIN : backendUrl+'/auth/google',
     UPDATE_PASSWORD:'/auth/change-password',
     UPDATE_PROFILE:'/auth/update-profile'
 }
