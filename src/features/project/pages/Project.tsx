@@ -1,9 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Target } from "lucide-react";
-import FormButton from "../../../common/components/UI/FormButton";
-import CommonModal from "../../../common/components/UI/Modal";
-import ProjectForm from "../components/ProjectForm";
-import type { ProjectPayload } from "../projectSchema";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../../app/store";
 import {
@@ -12,21 +8,31 @@ import {
   type Project,
   type projectRole,
 } from "../projectSlice";
+import type { ProjectPayload } from "../projectSchema";
+import FormButton from "../../../common/components/UI/FormButton";
+import CommonModal from "../../../common/components/UI/Modal";
+import ProjectForm from "../components/ProjectForm";
 import Loader from "../../../common/components/UI/Loader";
 import ProjectSection from "../components/ProjectSection";
 import DeleteModal from "../../../common/components/UI/DeleteModal";
+import SearchInput from "../../../common/components/UI/SearchInput";
+import FormSelect from "../../../common/components/UI/FormSelect";
 
 const ProjectPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { loading, projects } = useSelector(
     (state: RootState) => state.project
   );
+
   const [showModal, setShowModal] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectPayload | null>(
     null
   );
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     if (!projects.myProjects.length && !projects.assignedProjects.length) {
@@ -84,12 +90,38 @@ const ProjectPage = () => {
     setSelectedId(null);
   };
 
+  const filterProjects = useCallback(
+    (list: Project[]) => {
+      return list.filter((project) => {
+        const matchStatus =
+          statusFilter === "all" || project.status === statusFilter;
+        const matchSearch =
+          searchQuery === "" ||
+          project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          project.description.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchStatus && matchSearch;
+      });
+    },
+    [searchQuery, statusFilter]
+  );
+
+  const filteredMyProjects = useMemo(
+    () => filterProjects(projects.myProjects),
+    [projects.myProjects, filterProjects]
+  );
+
+  const filteredAssignedProjects = useMemo(
+    () => filterProjects(projects.assignedProjects),
+    [projects.assignedProjects, filterProjects]
+  );
+
   const isEmpty = useMemo(
     () =>
-      projects.myProjects.length === 0 &&
-      projects.assignedProjects.length === 0,
-    [projects.myProjects.length, projects.assignedProjects.length]
+      filteredMyProjects.length === 0 && filteredAssignedProjects.length === 0,
+    [filteredMyProjects.length, filteredAssignedProjects.length]
   );
+
+  const hasActiveFilters = searchQuery !== "" || statusFilter !== "all";
 
   if (loading) return <Loader />;
 
@@ -104,7 +136,6 @@ const ProjectPage = () => {
           type="button"
           name="addProject"
           label="New Project"
-          className=""
           onClick={() => {
             setEditingProject(null);
             setShowModal(true);
@@ -113,32 +144,86 @@ const ProjectPage = () => {
           sx={{
             px: 3,
             py: 1.5,
-            "&:hover": {
-              transform: "scale(1.05)",
-            },
+            "&:hover": { transform: "scale(1.05)" },
           }}
         />
       </div>
 
+      {/* Search and Filter */}
+      <div className="p-2">
+        <div className="grid grid-cols-1 md:grid-cols-[40%_30%_30%] gap-4">
+          <SearchInput
+            value={searchQuery}
+            onChange={setSearchQuery}
+            placeholder="Search by project name or description..."
+          />
+          <FormSelect
+            type="select"
+            label="Status"
+            name="filterByStatus"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter((e.target as HTMLSelectElement).value)}
+            options={[
+              { label: "All Status", value: "all" },
+              { label: "Pending", value: "pending" },
+              { label: "In Progress", value: "inprogress" },
+              { label: "Completed", value: "completed" },
+            ]}
+          />
+
+          <div className="flex items-center">
+            {hasActiveFilters && (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                }}
+                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+              >
+                Clear all filters
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Empty State */}
       {isEmpty && (
         <div className="text-center py-12">
           <Target size={48} className="mx-auto text-gray-300 mb-4" />
-          <p className="text-gray-500 text-lg">No projects found</p>
+          <p className="text-gray-500 text-lg">
+            {hasActiveFilters
+              ? "No projects match your filters"
+              : "No projects found"}
+          </p>
+          {hasActiveFilters && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+              }}
+              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-2"
+            >
+              Clear filters
+            </button>
+          )}
         </div>
       )}
 
+      {/* Project Sections */}
       <ProjectSection
         title="My Projects"
-        projects={projects.myProjects}
+        projects={filteredMyProjects}
         onEdit={handleEdit}
         onDelete={handleDeleteClick}
       />
       <ProjectSection
         title="Assigned Projects"
-        projects={projects.assignedProjects}
+        projects={filteredAssignedProjects}
         isAssigned
       />
 
+      {/* Modals */}
       <CommonModal
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -149,6 +234,7 @@ const ProjectPage = () => {
           setShowModal={setShowModal}
         />
       </CommonModal>
+
       <DeleteModal
         open={deleteModalOpen}
         onClose={handleDeleteCancel}

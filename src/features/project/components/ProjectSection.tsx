@@ -15,9 +15,9 @@ const ProjectSection = memo(
     if (projects.length === 0) return null;
 
     return (
-      <section>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">{title}</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-4">
+      <section className="mb-8">
+          <h1 className="text-xl font-bold text-gray-900 mb-3">{title} ({projects.length})</h1>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {projects.map((project) => (
             <ProjectCard
               key={project._id}
