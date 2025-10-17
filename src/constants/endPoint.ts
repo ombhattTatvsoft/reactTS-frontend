@@ -9,14 +9,23 @@ export const AUTH_ENDPOINTS = {
     UPDATE_PROFILE:'/auth/update-profile'
 }
 
-export const Project_ENDPOINTS = {
+export const PROJECT_ENDPOINTS = {
     ADD_Project : '/project/createProject',
     GET_PROJECTS: '/project/getProjects',
     EDIT_Project : '/project/editProject',
     DELETE_Project : '/project/deleteProject',
+    PROJECT_MEMBERS : '/project/getProjectMembers',
 }
 
 export const NOTIFICATION_ENDPOINTS = {
     GET_NOTIFICATIONS : 'notifications',
     MARK_ALL_READ : 'notifications/mark-read',
+}
+
+export const TASK_ENDPOINTS = {
+    ADD_TASK : '/task/createTask',
+    EDIT_TASK : '/task/editTask',
+    DELETE_TASK : '/task/deleteTask',
+    GET_TASKS: "/task/getTasks",
+    UPDATE_TASK_STATUS: "/task/updateTaskStatus",
 }

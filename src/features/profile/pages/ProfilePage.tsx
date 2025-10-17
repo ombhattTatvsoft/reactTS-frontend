@@ -18,6 +18,7 @@ import type { AppDispatch } from "../../../app/store";
 import FormikForm from "../../../common/components/UI/FormikForm";
 import { updateUserPassword, updateUserProfile } from "../../auth/authSlice";
 import { backendUrl } from "../../../common/api/baseApi";
+import DefaultAvatar from './../components/DefaultAvatar';
 
 const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,14 +36,6 @@ const ProfilePage = () => {
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [editForm, setEditForm] = useState(initialEditForm);
-
-  const getInitials = useCallback((name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  }, []);
 
   const formatDate = useCallback((dateString: string) => {
     const date = new Date(dateString);
@@ -137,7 +130,7 @@ const ProfilePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {/* Sidebar */}
         <div className="lg:col-span-1">
-          <Card>
+          <Card className="bg-white p-6">
             <div className="text-center">
               <div className="relative inline-block mb-3">
                 {editForm.avatar || userData.avatar ? (
@@ -153,9 +146,7 @@ const ProfilePage = () => {
                     className="w-32 h-32 rounded-full object-cover border-4 border-purple-100"
                   />
                 ) : (
-                  <div className="w-32 h-32 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-purple-100 shadow-lg">
-                    {getInitials(editForm.name)}
-                  </div>
+                  <DefaultAvatar name={editForm.name} className="w-32 h-32 text-4xl font-bold"/>
                 )}
 
                 {isEditingProfile && (
@@ -196,7 +187,7 @@ const ProfilePage = () => {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Profile Info */}
-          <Card>
+          <Card className="bg-white p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
@@ -261,7 +252,7 @@ const ProfilePage = () => {
           </Card>
 
           {/* Security Section */}
-          <Card>
+          <Card className="bg-white p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                 <Lock className="w-5 h-5 text-blue-600" />

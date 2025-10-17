@@ -7,7 +7,7 @@ import type { user } from "../auth/authSlice";
 
 export type projectRole = "manager" | "developer" | "tester" | "owner";
 
-interface projectState extends ProjectsResponse {
+interface projectState extends ProjectsResponse,ProjectMembersResponse {
   loading: boolean;
 }
 
@@ -17,9 +17,14 @@ const initialState: projectState = {
     myProjects: [],
     assignedProjects: [],
   },
+  allMembers : {
+    members: [],
+    pendingMembers: [],
+  }
 };
 
 export interface ProjectMember {
+  _id: string;
   user: user;
   role: projectRole;
   joinedAt: string;
@@ -34,7 +39,7 @@ export interface Project {
   status: "pending" | "in-progress" | "completed";
   owner: user;
   members: ProjectMember[];
-  pendingMembers: [{ name: string; email: string; role: Exclude<projectRole,"owner"> }];
+  pendingMembers: { _id:string, email: string; role: Exclude<projectRole,"owner"> }[];
   createdAt: string;
   updatedAt: string;
   __v: number;
@@ -44,6 +49,13 @@ export interface ProjectsResponse {
   projects: {
     myProjects: Project[];
     assignedProjects: Project[];
+  };
+}
+
+export interface ProjectMembersResponse {
+  allMembers: {
+    members: Project['members'];
+    pendingMembers: Project['pendingMembers'];
   };
 }
 
@@ -80,6 +92,17 @@ export const deleteProject = createAsyncThunk<ApiResponse,string>(
   }
 );
 
+export const getProjectMembers = createAsyncThunk<ApiResponse<ProjectMembersResponse>,string>(
+  "project/getProjectMembers",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await projectApi.getProjectMembers(id);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 export const getProjects = createAsyncThunk<ApiResponse<ProjectsResponse>>(
   "project/getProjects",
   async (_, { rejectWithValue }) => {
@@ -101,6 +124,10 @@ const projectSlice = createSlice({
         state.loading = false;
         state.projects = action.payload.data!.projects;
       })
+      .addCase(getProjectMembers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allMembers = action.payload.data!.allMembers;
+      })
       .addMatcher(
         isAnyOf(createProject.fulfilled, editProject.fulfilled,deleteProject.fulfilled),
         (state, action) => {
@@ -109,13 +136,13 @@ const projectSlice = createSlice({
         }
       )
       .addMatcher(
-        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending),
+        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending,getProjectMembers.pending,),
         (state) => {
           state.loading = true;
         }
       )
       .addMatcher(
-        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected),
+        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected,getProjectMembers.rejected),
         (state, action) => {
           state.loading = false;
           toast.error(action.payload as string);
@@ -123,7 +150,5 @@ const projectSlice = createSlice({
       );
   },
 });
-
-
 
 export default projectSlice.reducer;

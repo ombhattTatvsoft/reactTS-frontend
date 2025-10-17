@@ -13,7 +13,7 @@ import { setAuthenticated, setAuthloading, setUser, type user } from "../feature
 import { removeUserData, setUserData } from "../utils/manageUserData";
 import Project from "../features/project/pages/Project";
 import ProfilePage from "../features/profile/pages/ProfilePage";
-// import TaskPage from "../features/task/pages/TaskPage";
+import TaskPage from "../features/task/pages/TaskPage";
 
 function AppRoutes() {
 
@@ -48,7 +48,7 @@ function AppRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/projects" element={<Project />} />
           <Route path="/profile" element={<ProfilePage />} />
-          {/* <Route path="/projects/:id" element={<TaskPage />} /> */}
+          <Route path="/projects/:projectId/tasks" element={<TaskPage />} />
         </Route>
       </Route>
     </Routes>

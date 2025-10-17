@@ -30,7 +30,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 bg-white backdrop-blur-xl shadow-lg shadow-purple-500/10 z-50">
+    <nav className="sticky w-full top-0 bg-white backdrop-blur-xl shadow-lg shadow-purple-500/10 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}

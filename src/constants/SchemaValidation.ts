@@ -2,6 +2,7 @@ export const SCHEMA = {
   // General
   NAME_REQ: "Name is Required",
   NAME_MAX: "Name must be 50 characters or less",
+  DESC_MAX: "Description must be 200 characters or less",
   NAME_VALID:"Name is not valid",
   EMAIL_REQ: "Email is Required",
   EMAIL_VALID: "Enter a valid email",
@@ -22,6 +23,13 @@ export const SCHEMA = {
 
   // project schema
   PROJECT_MAX: "Name must be 30 characters or less",
-  DESC_MAX: "Description must be 200 characters or less",
-  MEMBER_REQ: "Member is required"
+  MEMBER_REQ: "Member is required",
+
+  // Task schema
+  TITLE_REQ: "Task title is required",
+  TITLE_MAX: "Title must be 30 characters or less",
+  PRIORITY_REQ: "Priority is required",
+  ASSIGNEE_REQ: "Assignee is required",
+  DUE_REQ: "Due date is required",
+  DUEDATE_VALID:"Due date cannot be in the past",
 };

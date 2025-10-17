@@ -8,7 +8,7 @@ import {
   createSelectDropdown,
   createTextArea,
 } from "../../../common/utils/FormFieldGenerator";
-import { createProjectSchema, type ProjectPayload } from "../projectSchema";
+import { ProjectSchema, type ProjectPayload } from "../projectSchema";
 import type { AppDispatch } from "../../../app/store"; 
 import { createProject, editProject, getProjects } from "../projectSlice";
 import { MemberFields } from "./AddMember";
@@ -91,7 +91,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues,setShowModal })
   return (
     <FormikForm
       initialValues={newInitialValues}
-      validationSchema={createProjectSchema(isUpdate)}
+      validationSchema={ProjectSchema(isUpdate)}
       saveAction={initialValues ? handleEdit : handleAdd}
       fields={formFields}
     />

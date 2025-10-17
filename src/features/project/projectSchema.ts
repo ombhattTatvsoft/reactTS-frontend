@@ -2,7 +2,7 @@ import * as Yup from "yup";
 import { SCHEMA } from "../../constants/SchemaValidation";
 import { startOfToday } from "date-fns";
 
-export const createProjectSchema = (isUpdate = false) => {
+export const ProjectSchema = (isUpdate = false) => {
   const today = startOfToday();
 
   return Yup.object().shape({
@@ -60,4 +60,4 @@ export const createProjectSchema = (isUpdate = false) => {
   });
 };
 
-export type ProjectPayload = Yup.InferType<ReturnType<typeof createProjectSchema>>;
+export type ProjectPayload = Yup.InferType<ReturnType<typeof ProjectSchema>>;

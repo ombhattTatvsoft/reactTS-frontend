@@ -35,10 +35,10 @@ const ProjectPage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
-    if (!projects.myProjects.length && !projects.assignedProjects.length) {
+    // if (!projects.myProjects.length && !projects.assignedProjects.length) {
       dispatch(getProjects());
-    }
-  }, [dispatch, projects.myProjects.length, projects.assignedProjects.length]);
+    // }
+  }, [dispatch]);
 
   const formatEdit = useCallback((project: Project): ProjectPayload => {
     return {
@@ -150,44 +150,43 @@ const ProjectPage = () => {
       </div>
 
       {/* Search and Filter */}
-      <div className="p-2">
-        <div className="grid grid-cols-1 md:grid-cols-[40%_30%_30%] gap-4">
-          <SearchInput
-            value={searchQuery}
-            onChange={setSearchQuery}
-            placeholder="Search by project name or description..."
-          />
-          <FormSelect
-            type="select"
-            label="Status"
-            name="filterByStatus"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter((e.target as HTMLSelectElement).value)}
-            options={[
-              { label: "All Status", value: "all" },
-              { label: "Pending", value: "pending" },
-              { label: "In Progress", value: "inprogress" },
-              { label: "Completed", value: "completed" },
-            ]}
-          />
+      <div className="grid grid-cols-1 md:grid-cols-[40%_30%_30%] gap-3">
+        <SearchInput
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search by project name or description..."
+        />
+        <FormSelect
+          type="select"
+          label="Status"
+          name="filterByStatus"
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter((e.target as HTMLSelectElement).value)
+          }
+          options={[
+            { label: "All Status", value: "all" },
+            { label: "Pending", value: "pending" },
+            { label: "In Progress", value: "inprogress" },
+            { label: "Completed", value: "completed" },
+          ]}
+        />
 
-          <div className="flex items-center">
-            {hasActiveFilters && (
-              <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setStatusFilter("all");
-                }}
-                className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
-              >
-                Clear all filters
-              </button>
-            )}
-          </div>
+        <div className="flex items-center">
+          {hasActiveFilters && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("all");
+              }}
+              className="text-indigo-600 hover:text-indigo-800 text-sm font-medium"
+            >
+              Clear all filters
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Empty State */}
       {isEmpty && (
         <div className="text-center py-12">
           <Target size={48} className="mx-auto text-gray-300 mb-4" />
@@ -240,7 +239,7 @@ const ProjectPage = () => {
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
         title="Delete Project"
-        description="Are you sure you want to delete this project? This action cannot be undone."
+        description="Are you sure you want to delete this project? Subsequent tasks will also be deleted. This action cannot be undone."
         confirmText="Delete Project"
       />
     </>

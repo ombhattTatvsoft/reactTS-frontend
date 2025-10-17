@@ -4,6 +4,7 @@ import type { Project } from "../projectSlice";
 import { useMemo } from "react";
 import MemberAvatarGroup from "./MemberAvatarGroup";
 import { Tooltip } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 interface ProjectCardProps {
   isAssigned: boolean;
@@ -23,6 +24,12 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/projects/${project._id}/tasks`);
+  };
+
   const members = useMemo(
     () =>
       project.members.map((member) => ({
@@ -50,8 +57,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   );
 
   return (
-    <Card>
-      <div className="flex flex-col h-full justify-between">
+    <Card className="bg-white p-6">
+      <div className="flex flex-col h-full justify-between cursor-pointer" onClick={handleCardClick}>
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 min-w-0">
@@ -66,11 +73,11 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           </div>
 
           {!isAssigned && (
-            <div className="flex gap-2 ml-4 shrink-0">
+            <div className="flex gap-2 ml-4 shrink-0" onClick={(e) => e.stopPropagation()}>
               <Tooltip title="Edit Project" arrow>
                 <button
                   onClick={onEdit}
-                  className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition"
+                  className="edit-btn"
                 >
                   <Edit2 size={18} />
                 </button>
@@ -78,7 +85,7 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
               <Tooltip title="Delete Project" arrow>
                 <button
                   onClick={onDelete}
-                  className="p-2 text-red-600 hover:bg-red-50 rounded-full transition"
+                  className="delete-btn"
                 >
                   <Trash2 size={18} />
                 </button>
