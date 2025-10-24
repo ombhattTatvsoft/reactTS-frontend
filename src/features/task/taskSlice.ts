@@ -57,8 +57,10 @@ const buildTaskFormData = (payload: TaskPayload): FormData => {
     });
   }
   if (payload.deletedFilenames?.length) {
-      formData.append("deletedFilenames", JSON.stringify(payload.deletedFilenames));
-  }
+    payload.deletedFilenames.forEach((filename) => {
+      formData.append("deletedFilenames[]", filename as string);
+    });
+  }   
   return formData;
 };
 

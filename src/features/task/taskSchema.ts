@@ -24,7 +24,6 @@ export const TaskSchema = (isUpdate: boolean) => {
     attachments: Yup.array().of(
       Yup.mixed<AttachmentItem>().test("fileSize", "File too large", (file) => {
         if (!file) return true;
-        // If it's a File instance, validate size; server objects should pass
         if (file instanceof File) {
           return file.size <= 5 * 1024 * 1024; // 5MB
         }

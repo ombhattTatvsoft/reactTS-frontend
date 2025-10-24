@@ -44,7 +44,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       priority: initialValues?.priority || ("medium" as Task["priority"]),
       assignee: initialValues?.assignee || "",
       dueDate: initialValues?.dueDate || null,
-      tags: initialValues?.tags || [],
+      tags: initialValues?.tags || "",
       attachments: initialValues?.attachments || [],
       deletedFilenames: [] as string[],
     }),
