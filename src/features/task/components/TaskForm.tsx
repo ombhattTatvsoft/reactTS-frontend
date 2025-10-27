@@ -15,7 +15,7 @@ import { startOfToday } from "date-fns";
 import { createTask, editTask, getTasks, type Task } from "../taskSlice";
 import type { ProjectMembersResponse } from "../../project/projectSlice";
 import { getUserData } from "../../../utils/manageUserData";
-import AttachmentUploader from "./AttachmentUploader";
+import AttachmentUploaderFormikWrapper from "./AttachmentUploaderFormik";
 
 interface TaskFormProps {
   initialValues: TaskPayload | null;
@@ -111,11 +111,12 @@ const TaskForm: React.FC<TaskFormProps> = ({
         containerclassname: "w-1/2 px-2",
       }),
       createReactNode(
-        <AttachmentUploader
+        <AttachmentUploaderFormikWrapper
           name="attachments"
           deletedFieldName="deletedFilenames"
           accept="image/*,.pdf,.doc,.docx"
           maxFiles={5}
+          maxSizeInMB={5}
         />
       ),
       createTextArea({

@@ -5,8 +5,23 @@ import taskApi from "./taskApi";
 import { toast } from "react-toastify";
 import type { user } from "../auth/authSlice";
 
-export type AttachmentItem = File | { fileName: string; originalName: string; url: string; size: number };
+export type AttachmentItem =
+  | File
+  | {
+      fileName: string;
+      originalName: string;
+      url: string;
+      size: number;
+      uploadedBy?: string;
+      uploadedAt?: string;
+    };
 
+    export type CommentItem = {
+      id: string;
+      user: user;
+      text: string;
+      createdAt: string;
+    };
 export interface Task {
   _id: string;
   projectId: string;
@@ -14,19 +29,21 @@ export interface Task {
   description: string;
   status: "todo" | "in-progress" | "completed";
   priority: "low" | "medium" | "high";
-  assignee: user ;
+  assignee: user;
   dueDate: Date;
   tags: string[];
-  createdBy: user | string;
-  updatedBy: user | string;
-  attachments : AttachmentItem[];
+  createdBy: user;
+  updatedBy: user;
+  attachments: AttachmentItem[];
   createdAt: string;
   updatedAt: string;
+  comments: CommentItem[];
+  // activity?: { id: string; actor: user; text: string; createdAt: string }[];
   __v: number;
 }
 
 export interface TasksResponse {
-    tasks: Task[];
+  tasks: Task[];
 }
 
 interface taskState extends TasksResponse {
@@ -60,117 +77,128 @@ const buildTaskFormData = (payload: TaskPayload): FormData => {
     payload.deletedFilenames.forEach((filename) => {
       formData.append("deletedFilenames[]", filename as string);
     });
-  }   
+  }
   return formData;
 };
 
-
 export const createTask = createAsyncThunk<ApiResponse, TaskPayload>(
-    "task/createTask",
-    async (payload, { rejectWithValue }) => {
-      try {
-        const formData = buildTaskFormData(payload);
-        return await taskApi.createTask(formData);
-      } catch (err) {
-        return rejectWithValue(err);
-      }
+  "task/createTask",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const formData = buildTaskFormData(payload);
+      return await taskApi.createTask(formData);
+    } catch (err) {
+      return rejectWithValue(err);
     }
-  );
-
-  export const editTask = createAsyncThunk<ApiResponse, TaskPayload>(
-    "task/editTask",
-    async (payload, { rejectWithValue }) => {
-      try {
-        const formData = buildTaskFormData(payload);
-      return await taskApi.editTask(formData);
-      } catch (err) {
-        return rejectWithValue(err);
-      }
-    }
-  );
-
-  export const deleteTask = createAsyncThunk<ApiResponse,string>(
-    "task/deleteTask",
-    async (id, { rejectWithValue }) => {
-      try {
-        return await taskApi.deleteTask(id);
-      } catch (err) {
-        return rejectWithValue(err);
-      }
-    }
-  );
-
-  export const getTasks = createAsyncThunk<ApiResponse<TasksResponse>,string>(
-    "task/getTasks",
-    async (projectId, { rejectWithValue }) => {
-      try {
-        return await taskApi.getTasks(projectId);
-      } catch (err) {
-        return rejectWithValue(err);
-      }
-    }
-  );
-
-  export interface updateTaskStatusPayload{
-    id : string;
-    status : Task['status'];
   }
-  export const updateTaskStatus = createAsyncThunk<ApiResponse<{task : Task}>, updateTaskStatusPayload>(
-    "task/updateTaskStatus",
-    async (data, { rejectWithValue }) => {
-      try {
-        return await taskApi.updateTaskStatus(data);
-      } catch (err) {
-        return rejectWithValue(err);
-      }
-    }
-  );
+);
 
-  const taskSlice = createSlice({
-    name: "task",
-    initialState,
-    reducers: {},
-    extraReducers: (builder) => {
-      builder
-        .addCase(getTasks.fulfilled, (state, action) => {
+export const editTask = createAsyncThunk<ApiResponse, TaskPayload>(
+  "task/editTask",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const formData = buildTaskFormData(payload);
+      return await taskApi.editTask(formData);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const deleteTask = createAsyncThunk<ApiResponse, string>(
+  "task/deleteTask",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await taskApi.deleteTask(id);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const getTasks = createAsyncThunk<ApiResponse<TasksResponse>, string>(
+  "task/getTasks",
+  async (projectId, { rejectWithValue }) => {
+    try {
+      return await taskApi.getTasks(projectId);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export interface updateTaskStatusPayload {
+  id: string;
+  status: Task["status"];
+}
+export const updateTaskStatus = createAsyncThunk<
+  ApiResponse<{ task: Task }>,
+  updateTaskStatusPayload
+>("task/updateTaskStatus", async (data, { rejectWithValue }) => {
+  try {
+    return await taskApi.updateTaskStatus(data);
+  } catch (err) {
+    return rejectWithValue(err);
+  }
+});
+
+const taskSlice = createSlice({
+  name: "task",
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(getTasks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.tasks = action.payload.data!.tasks;
+      })
+      .addCase(updateTaskStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedTask = action.payload.data!.task;
+        const index = state.tasks.findIndex((t) => t._id === updatedTask._id);
+        if (index !== -1) {
+          state.tasks[index] = {
+            ...state.tasks[index],
+            status: updatedTask.status,
+            updatedBy: updatedTask.updatedBy,
+            updatedAt: updatedTask.updatedAt,
+          };
+          toast.success(action.payload.message);
+        }
+      })
+      .addMatcher(
+        isAnyOf(createTask.fulfilled, editTask.fulfilled, deleteTask.fulfilled),
+        (state, action) => {
           state.loading = false;
-          state.tasks = action.payload.data!.tasks;
-        })
-        .addCase( updateTaskStatus.fulfilled, (state, action) => {
+          toast.success(action.payload.message);
+        }
+      )
+      .addMatcher(
+        isAnyOf(
+          createTask.pending,
+          updateTaskStatus.pending,
+          getTasks.pending,
+          editTask.pending,
+          deleteTask.pending
+        ),
+        (state) => {
+          state.loading = true;
+        }
+      )
+      .addMatcher(
+        isAnyOf(
+          createTask.rejected,
+          updateTaskStatus.rejected,
+          getTasks.rejected,
+          editTask.rejected,
+          deleteTask.rejected
+        ),
+        (state, action) => {
           state.loading = false;
-          const updatedTask = action.payload.data!.task;
-          const index = state.tasks.findIndex((t) => t._id === updatedTask._id);
-          if (index !== -1) {
-            state.tasks[index] = {
-              ...state.tasks[index],
-              status: updatedTask.status,
-              updatedBy: updatedTask.updatedBy,
-              updatedAt: updatedTask.updatedAt,
-            };
-            toast.success(action.payload.message);
-          }
-        })
-        .addMatcher(
-          isAnyOf(createTask.fulfilled, editTask.fulfilled,deleteTask.fulfilled),
-          (state, action) => {
-            state.loading = false;
-            toast.success(action.payload.message);
-          }
-        )
-        .addMatcher(
-          isAnyOf(createTask.pending,updateTaskStatus.pending, getTasks.pending,editTask.pending,deleteTask.pending),
-          (state) => {
-            state.loading = true;
-          }
-        )
-        .addMatcher(
-          isAnyOf(createTask.rejected,updateTaskStatus.rejected, getTasks.rejected,editTask.rejected,deleteTask.rejected),
-          (state, action) => {
-            state.loading = false;
-            toast.error(action.payload as string);
-          }
-        );
-    },
-  });
-  
-  export default taskSlice.reducer;
+          toast.error(action.payload as string);
+        }
+      );
+  },
+});
+
+export default taskSlice.reducer;

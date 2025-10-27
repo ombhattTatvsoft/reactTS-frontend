@@ -49,7 +49,9 @@ const TaskPage = () => {
   }
 
   useEffect(() => {
+    // if (!tasks.length) {
     dispatch(getTasks(projectId));
+    // }
   }, [dispatch, projectId]);
 
   useEffect(() => {
@@ -60,9 +62,7 @@ const TaskPage = () => {
         (u) => u.user._id === getUserData()._id
       )!.role;
     };
-    // if (!tasks.length) {
     getMembers();
-    // }
   }, [dispatch, projectId]);
 
   const formatEdit = useCallback((task: Task): TaskPayload => {
@@ -285,6 +285,7 @@ const TaskPage = () => {
                 email: m.user.email,
                 role: m.role,
                 avatar: m.user.avatar,
+                joinedAt: m.joinedAt,
               }}
               taskCount={
                 tasks.filter(
@@ -299,6 +300,7 @@ const TaskPage = () => {
             />
           ))}
         </Card>
+        
       </div>
     </div>
   );

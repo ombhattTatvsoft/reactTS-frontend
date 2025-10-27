@@ -14,6 +14,7 @@ import { removeUserData, setUserData } from "../utils/manageUserData";
 import Project from "../features/project/pages/Project";
 import ProfilePage from "../features/profile/pages/ProfilePage";
 import TaskPage from "../features/task/pages/TaskPage";
+import TaskDetailPage from "../features/task/pages/TaskDetailPage";
 
 function AppRoutes() {
 
@@ -48,6 +49,7 @@ function AppRoutes() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/projects" element={<Project />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/task-detail" element={<TaskDetailPage />} />
           <Route path="/projects/:projectId/tasks" element={<TaskPage />} />
         </Route>
       </Route>

@@ -13,6 +13,7 @@ interface MemberCardProps {
     email: string;
     role: string;
     avatar?: string;
+    joinedAt?: string;
   };
   currentProjectRole: projectRole;
   taskCount: number;
@@ -69,6 +70,9 @@ export default function MemberCard({
           >
             <p>
               <span className="font-medium">Email:</span> {member.email}
+            </p>
+            <p>
+              <span className="font-medium">Joined:</span> {member.joinedAt?.substring(0, 10)}
             </p>
             {(member.role !== "owner" && (currentProjectRole==='owner' || currentProjectRole==='manager' || member._id===userId)) && (
               <>

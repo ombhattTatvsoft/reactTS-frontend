@@ -8,6 +8,9 @@
   scrollbar-width: none;     /* Firefox */
 }
 
+.ck-editor__editable{
+  height: 300px;
+}
 @layer utilities {
   .status-pending {
     @apply bg-gray-100 text-gray-700;
