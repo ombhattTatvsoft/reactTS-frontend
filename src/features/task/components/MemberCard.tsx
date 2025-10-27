@@ -1,10 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 import { useState } from "react";
-import DefaultAvatar from "../../profile/components/defaultAvatar";
 import { backendUrl } from "../../../common/api/baseApi";
 import type { projectRole } from "../../project/projectSlice";
 import { getUserData } from "../../../utils/manageUserData";
+import DefaultAvatar from "../../profile/components/DefaultAvatar";
 
 interface MemberCardProps {
   member: {

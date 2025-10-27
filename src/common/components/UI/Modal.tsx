@@ -43,7 +43,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
         <CloseIcon />
       </IconButton>
     </DialogTitle>
-    <DialogContent dividers>{children}</DialogContent>
+    <DialogContent dividers sx={{scrollbarWidth:'thin'}}>{children}</DialogContent>
   </Dialog>
 );
 
