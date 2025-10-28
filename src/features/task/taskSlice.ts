@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, isAnyOf } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from "@reduxjs/toolkit";
 import type { ApiResponse } from "../../common/api/baseApi";
 import type { TaskPayload } from "./taskSchema";
 import taskApi from "./taskApi";
@@ -16,12 +16,12 @@ export type AttachmentItem =
       uploadedAt?: string;
     };
 
-    export type CommentItem = {
-      id: string;
-      user: user;
-      text: string;
-      createdAt: string;
-    };
+export type CommentItem = {
+  id: string;
+  user: user;
+  text: string;
+  createdAt: string;
+};
 export interface Task {
   _id: string;
   projectId: string;
@@ -45,14 +45,17 @@ export interface Task {
 export interface TasksResponse {
   tasks: Task[];
 }
-
-interface taskState extends TasksResponse {
+export interface TaskResponse {
+  task: Task | null;
+}
+interface taskState extends TasksResponse,TaskResponse {
   loading: boolean;
 }
 
 const initialState: taskState = {
   loading: false,
   tasks: [],
+  task: null,
 };
 
 // utils to build FormData from TaskPayload
@@ -127,16 +130,60 @@ export const getTasks = createAsyncThunk<ApiResponse<TasksResponse>, string>(
   }
 );
 
+export const getTask = createAsyncThunk<ApiResponse<TaskResponse>, string>(
+  "task/getTask",
+  async (taskId, { rejectWithValue }) => {
+    try {
+      return await taskApi.getTask(taskId);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 export interface updateTaskStatusPayload {
   id: string;
   status: Task["status"];
 }
-export const updateTaskStatus = createAsyncThunk<
-  ApiResponse<{ task: Task }>,
-  updateTaskStatusPayload
->("task/updateTaskStatus", async (data, { rejectWithValue }) => {
+export const updateTaskStatus = createAsyncThunk<ApiResponse<{ task: Task }>,updateTaskStatusPayload>(
+  "task/updateTaskStatus", async (data, { rejectWithValue }) => {
   try {
     return await taskApi.updateTaskStatus(data);
+  } catch (err) {
+    return rejectWithValue(err);
+  }
+});
+
+export interface addCommentPayload {
+  taskId: string;
+  text: string;
+}
+export const addComment = createAsyncThunk<ApiResponse<{ comment: CommentItem }>,addCommentPayload>(
+  "task/addComment", async (data, { rejectWithValue }) => {
+  try {
+    return await taskApi.addComment(data);
+  } catch (err) {
+    return rejectWithValue(err);
+  }
+});
+
+export interface saveTaskAttachmentsPayload {
+  taskId: string;
+  files: File[];
+  deletedFilenames: string[];
+}
+export const saveTaskAttachments = createAsyncThunk<ApiResponse<TaskResponse>,saveTaskAttachmentsPayload>(
+  "task/saveTaskAttachments", async (data, { rejectWithValue }) => {
+  try {
+    const formData = new FormData();
+    formData.append("taskId", data.taskId);
+    if (data.files.length) {
+      data.files.forEach((f) => formData.append("attachments", f as File));
+    }
+    if (data.deletedFilenames.length) {
+      data.deletedFilenames.forEach((d) => formData.append("deletedFilenames[]", d as string));
+    }
+    return await taskApi.saveTaskAttachments(formData);
   } catch (err) {
     return rejectWithValue(err);
   }
@@ -145,12 +192,32 @@ export const updateTaskStatus = createAsyncThunk<
 const taskSlice = createSlice({
   name: "task",
   initialState,
-  reducers: {},
+  reducers: {
+    commentReceived: (state, action: PayloadAction<{ taskId: string; comment: CommentItem }>) => {
+      const { taskId, comment } = action.payload;
+      if (state.task && state.task._id === taskId) {
+        state.task.comments = state.task.comments || [];
+        if (!state.task.comments.find((c) => c.id === comment.id)) {
+          state.task.comments.push(comment);
+        }
+      }
+    },
+    attachmentsUpdatedLocal: (state, action: PayloadAction<{ taskId: string; attachments: AttachmentItem[] }>) => {
+      const { taskId, attachments } = action.payload;
+      if (state.task && state.task._id === taskId) {
+        state.task.attachments = attachments;
+      }
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getTasks.fulfilled, (state, action) => {
         state.loading = false;
         state.tasks = action.payload.data!.tasks;
+      })
+      .addCase(getTask.fulfilled, (state, action) => {
+        state.loading = false;
+        state.task = action.payload.data!.task;
       })
       .addCase(updateTaskStatus.fulfilled, (state, action) => {
         state.loading = false;
@@ -178,6 +245,7 @@ const taskSlice = createSlice({
           createTask.pending,
           updateTaskStatus.pending,
           getTasks.pending,
+          getTask.pending,
           editTask.pending,
           deleteTask.pending
         ),
@@ -190,6 +258,7 @@ const taskSlice = createSlice({
           createTask.rejected,
           updateTaskStatus.rejected,
           getTasks.rejected,
+          getTask.rejected,
           editTask.rejected,
           deleteTask.rejected
         ),
@@ -201,4 +270,5 @@ const taskSlice = createSlice({
   },
 });
 
+export const { commentReceived, attachmentsUpdatedLocal } = taskSlice.actions;
 export default taskSlice.reducer;

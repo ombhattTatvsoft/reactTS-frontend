@@ -2,128 +2,23 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   MessageSquare,
-  Paperclip,
   Send,
   CheckCircle2,
   Circle,
   AlertCircle,
 } from "lucide-react";
 import AttachmentUploader from "../components/AttachmentUploader";
-import type { AttachmentItem, CommentItem, Task } from "../taskSlice";
+import { addComment, getTask, type AttachmentItem, type Task } from "../taskSlice";
 import { getUserData } from "../../../utils/manageUserData";
 import RichTextEditor from "../../../common/components/UI/RichTextEditor";
-
-// Dummy Data
-const dummyTask: Task = {
-  _id: "TSK-1847",
-  projectId: "proj-1",
-  title: "API Endpoint Setup",
-  description:
-    "Setup comprehensive REST API routes for tasks management system. This includes implementing CRUD operations for tasks, advanced filtering capabilities, search functionality with pagination, proper error handling middleware, request validation using Joi/Yup schemas, and comprehensive API documentation using Swagger/OpenAPI specifications. The implementation should follow RESTful best practices and include proper status codes for all responses.",
-  status: "in-progress",
-  priority: "medium",
-  assignee: {
-    _id: "2",
-    name: "Tatva Dev",
-    email: "tatva.dev@company.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tatva",
-  },
-  dueDate: new Date("2025-11-04"),
-  tags: ["Backend", "API", "High Priority"],
-  createdBy: {
-    _id: "1",
-    name: "John Manager",
-    email: "john.manager@company.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-  },
-  updatedBy: { _id: "1", name: "John Manager", email: "john@company.com" },
-  attachments: [
-    {
-      fileName: "api-spec.pdf",
-      originalName: "API Specification v2.1.pdf",
-      url: "/uploads/api-spec.pdf",
-      size: 245678,
-      uploadedBy: "1",
-    },
-    {
-      fileName: "design-mockup.png",
-      originalName: "Design Mockup - Final.png",
-      url: "/uploads/design.png",
-      size: 512340,
-      uploadedBy: "2",
-    },
-    {
-      fileName: "requirements.docx",
-      originalName: "Requirements Document.docx",
-      url: "/uploads/req.docx",
-      size: 89234,
-      uploadedBy: "1",
-    },
-  ],
-  createdAt: "2025-10-20T10:30:00Z",
-  updatedAt: "2025-10-23T15:45:00Z",
-  comments: [
-    {
-      id: "c1",
-      user: {
-        _id: "1",
-        name: "John Manager",
-        email: "john@company.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-      },
-      text: "<p>Please prioritize the authentication endpoints first. We need JWT implementation with refresh tokens.</p>",
-      createdAt: "2025-10-21T09:00:00Z",
-    },
-    {
-      id: "c2",
-      user: {
-        _id: "2",
-        name: "Tatva Dev",
-        email: "tatva@company.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Tatva",
-      },
-      text: "<p>Working on it! Auth endpoints are <strong>80% complete</strong>. Added middleware for token validation.</p>",
-      createdAt: "2025-10-22T14:30:00Z",
-    },
-    {
-      id: "c3",
-      user: {
-        _id: "3",
-        name: "Sarah Designer",
-        email: "sarah@company.com",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-      },
-      text: "<p>Added the updated design mockup to attachments. Please review the new color scheme.</p>",
-      createdAt: "2025-10-23T11:15:00Z",
-    },
-  ],
-  __v: 1,
-};
-
-// Utility Functions
-const formatDate = (date: Date | string) => {
-  const d = new Date(date);
-  return d.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-};
-
-const getTimeAgo = (date: string) => {
-  const now = new Date();
-  const past = new Date(date);
-  const diffMs = now.getTime() - past.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffMins < 1) return "just now";
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 30) return `${diffDays}d ago`;
-  return formatDate(date);
-};
+import { useNavigate, useParams } from "react-router-dom";
+import Card from "../../../common/components/UI/Card";
+import FormButton from "../../../common/components/UI/FormButton";
+import { formatDate, getTimeAgo } from "../../../utils/dateTime.util";
+import CommentsDiv from "../components/CommentsDiv";
+import type { AppDispatch, RootState } from "../../../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import Loader from "../../../common/components/UI/Loader";
 
 // Components
 const StatusBadge = ({ status }: { status: Task["status"] }) => {
@@ -190,262 +85,220 @@ const PriorityBadge = ({ priority }: { priority: Task["priority"] }) => {
   );
 };
 
-const CommentItem = ({ comment }: { comment: CommentItem }) => (
-  <div className="flex gap-3 border-b border-gray-100 last:border-0 pb-3 mb-3">
-    <img
-      src={comment.user.avatar}
-      alt={comment.user.name}
-      className="w-8 h-8 rounded-full"
-    />
-    <div className="flex-1">
-      <div className="flex items-center gap-1 mb-1 text-xs text-gray-600">
-        <span className="font-medium">{comment.user.name}</span>•
-        <span>{getTimeAgo(comment.createdAt)}</span>
-      </div>
-      <div
-        className="prose prose-sm max-w-none"
-        dangerouslySetInnerHTML={{ __html: comment.text }}
-      />
-    </div>
-  </div>
-);
+const TaskDetailPage = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { taskId } = useParams<{ taskId: string }>();
+  const { loading, task } = useSelector((state: RootState) => state.task);
 
-const TaskDetailPage = ({ taskId }: { taskId: string }) => {
-  const [task, setTask] = useState<Task | null>(null);
-  const [comments, setComments] = useState<CommentItem[]>([]);
-  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [newComment, setNewComment] = useState("");
+  const navigate = useNavigate();
+
+  if (!taskId) {
+    throw new Error("Task ID not found in URL");
+  }
 
   useEffect(() => {
-    // Normally fetch from API
-    setTask(dummyTask);
-    setComments(dummyTask.comments);
-    setAttachments(dummyTask.attachments);
-  }, [taskId]);
-  // Fetch task from backend
-  // useEffect(() => {
-  //   const fetchTask = async () => {
-  //     try {
-  //       const res = await axios.get(`/api/tasks/${taskId}`);
-  //       setTask(res.data);
-  //       setComments(res.data.comments || []);
-  //       setAttachments(res.data.attachments || []);
-  //     } catch (err) {
-  //       console.error("Error fetching task", err);
-  //     }
-  //   };
-  //   fetchTask();
-  // }, [taskId]);
+    dispatch(getTask(taskId));
+  }, [dispatch, taskId]);
 
-  const handleAddComment = () => {
-    console.log(newComment);
+  const handleAddComment = async () => {
     if (!newComment.trim() || newComment === "<p></p>") return;
-    const user = getUserData();
-    const comment: CommentItem = {
-      id: `c${Date.now()}`,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-      },
-      text: newComment,
-      createdAt: new Date().toISOString(),
-    };
-    setComments([...comments, comment]);
-    setNewComment("");
-  };
-  // const handleAddComment = async () => {
-  //   if (!newComment.trim() || newComment === "<p><br></p>") return;
-
-  //   try {
-  //     const res = await axios.post(`/api/tasks/${taskId}/comments`, {
-  //       text: newComment,
-  //       userId: getUserData()._id,
-  //     });
-  //     setComments([...comments, res.data]);
-  //     setNewComment("");
-  //   } catch (err) {
-  //     console.error("Error adding comment", err);
-  //   }
-  // };
-
-  const handleAttachmentsChange = (files: AttachmentItem[]) => {
-    setAttachments(files);
-    if (task) {
-      setTask({ ...task, attachments: files });
+    try {
+      const res = await dispatch(addComment({ taskId, text: newComment })).unwrap();
+      // if backend returns the created comment in res.data.comment
+      // we already handle it in extraReducers; clear editor
+      setNewComment("");
+      // optionally: emit socket event here once you add socket
+    } catch (err) {
+      console.error("Error adding comment", err);
     }
   };
-  // const handleAttachmentsChange = async (files: AttachmentItem[]) => {
-  //   try {
-  //     const res = await axios.put(`/api/tasks/${taskId}/attachments`, { attachments: files });
-  //     setAttachments(res.data);
-  //     setTask({ ...task!, attachments: res.data });
-  //   } catch (err) {
-  //     console.error("Error updating attachments", err);
-  //   }
-  // };
 
-  if (!task) return <div className="p-5">Loading...</div>;
+  const handleAttachmentsChange = async (files: AttachmentItem[], deletedFilenames: string[] = []) => {
+    try {
+      // If files may contain server-side attachment objects (with url), filter out only File objects to upload:
+      const filesToUpload = (files || []).filter((f) => f instanceof File) as File[];
 
+      // optimistic UI update (local)
+      dispatch(attachmentsUpdatedLocal({ taskId, attachments: files }));
+
+      // call thunk which does multipart upload; it expects filesToUpload & deletedFilenames
+      await dispatch(saveTaskAttachments({ taskId, files: filesToUpload, deletedFilenames })).unwrap();
+
+      // server response will update the store in extraReducers
+    } catch (err) {
+      console.error("Error saving attachments", err);
+      // fallback: refetch task
+      dispatch(getTask(taskId));
+    }
+  };
+
+  if (!task || loading) return <Loader />
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors">
-              <ArrowLeft size={18} className="text-gray-600" />
+      <Card className="bg-white p-7">
+        <div className="flex justify-between flex-wrap gap-4">
+          <div className="flex gap-3 items-start">
+            <button
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              onClick={() => navigate(-1)}
+            >
+              <ArrowLeft size={22} className="text-gray-600" />
             </button>
-            <div>
-              <h1 className="text-lg font-bold text-gray-900">{task.title}</h1>
-              <p className="text-xs text-gray-500">{task._id}</p>
+  
+            <div className="space-y-1">
+              <h1 className="text-xl font-semibold text-gray-900">{task.title}</h1>
+              <p className="text-xs text-gray-500">
+                Updated {getTimeAgo(task.updatedAt)}
+              </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+  
+          <div className="flex gap-2 items-center">
             <StatusBadge status={task.status} />
             <PriorityBadge priority={task.priority} />
           </div>
         </div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-12 gap-5">
-        {/* Left Column */}
-        <div className="col-span-12 lg:col-span-8 space-y-4">
-          {/* Description */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-3">
-              Description
-            </h3>
-            <p className="text-xs text-gray-700 leading-relaxed">
-              {task.description}
-            </p>
-          </div>
-
+  
+        <div className="bg-gray-50 rounded-lg p-4 mt-5 text-sm text-gray-700 leading-relaxed">
+          {task.description}
+        </div>
+      </Card>
+  
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left */}
+        <div className="col-span-12 lg:col-span-8 space-y-6">
+  
           {/* Attachments */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
-            <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Paperclip size={16} className="text-gray-500" /> Attachments
-            </h3>
+          <Card className="p-6 bg-white">
             <AttachmentUploader
-              value={attachments}
-              onChange={handleAttachmentsChange}
+              value={task.attachments || []}
+              onChange={(files: AttachmentItem[], deletedFilenames?: string[]) =>
+                handleAttachmentsChange(files, deletedFilenames || [])
+              }
               currentUserId={getUserData()._id}
               maxFiles={5}
               maxSizeInMB={5}
             />
-          </div>
-
+          </Card>
+  
           {/* Comments */}
-          <div className="bg-white rounded-lg border border-gray-200 p-5">
+          <Card className="p-6 bg-white">
             <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <MessageSquare size={16} className="text-gray-500" />
-              Comments ({comments.length})
+              Comments
+              <span className="text-xs bg-gray-100 text-gray-600 px-2 rounded-md">
+              {task.comments.length}
+              </span>
             </h3>
-
-            <div className="overflow-y-auto max-h-72 mb-3">
-              {comments.length ? (
-                comments.map((c) => <CommentItem key={c.id} comment={c} />)
+  
+            <div className="overflow-y-auto max-h-72 pr-2 mb-4">
+              {task.comments.length ? (
+                task.comments.map((c) => <CommentsDiv key={c.id} comment={c} />)
               ) : (
-                <p className="text-xs text-gray-400 text-center py-6">
-                  No comments yet
+                <p className="text-xs text-gray-400 py-6 text-center">
+                  No comments available
                 </p>
               )}
             </div>
-
-            <RichTextEditor value={newComment} onChange={setNewComment} />
-            <div className="flex justify-end mt-2">
-              <button
-                onClick={handleAddComment}
-                disabled={!newComment.trim() || newComment === "<p></p>"}
-                className="flex items-center gap-1 px-3 py-1.5 text-white bg-purple-600 rounded text-xs disabled:opacity-50"
-              >
-                <Send size={14} /> Add Comment
-              </button>
+  
+            <div className="space-y-4">
+              <RichTextEditor value={newComment} onChange={setNewComment} />
+  
+              <div className="flex justify-end">
+                <FormButton
+                  type="button"
+                  name="addComment"
+                  variant="contained"
+                  label="Add Comment"
+                  onClick={handleAddComment}
+                  disabled={!newComment.trim() || newComment === "<p></p>"}
+                  startIcon={<Send size={14} />}
+                />
+              </div>
             </div>
-          </div>
+          </Card>
         </div>
-
-        {/* Right Column */}
-        <div className="col-span-12 lg:col-span-4 space-y-4">
-          <div className="col-span-12 lg:col-span-4 space-y-4">
-            {/* Assignee */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                Assignee
-              </h3>
-              <div className="flex items-center gap-3">
+  
+        {/* Right */}
+        <div className="col-span-12 lg:col-span-4 space-y-6">
+          {/* Info */}
+          <Card className="bg-white p-6">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+              Task Details
+            </h3>
+  
+            <div className="space-y-6">
+              {/* Assignee */}
+              <div className="flex gap-3 items-start">
                 <img
                   src={task.assignee.avatar}
                   alt={task.assignee.name}
-                  className="w-10 h-10 rounded-full"
+                  className="w-10 h-10 rounded-full ring-2 ring-gray-100"
                 />
                 <div>
-                  <p className="text-sm font-medium">{task.assignee.name}</p>
+                  <p className="text-sm font-medium text-gray-900">{task.assignee.name}</p>
                   <p className="text-xs text-gray-500">{task.assignee.email}</p>
                 </div>
               </div>
-            </div>
-
-            {/* Due Date */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                Due Date
-              </h3>
-              <p className="text-sm text-gray-700">
-                {formatDate(task.dueDate)}
-              </p>
-            </div>
-
-            {/* Tags */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">Tags</h3>
-              <div className="flex flex-wrap gap-2">
-                {task.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs font-medium bg-gray-100 text-gray-700 px-2 py-1 rounded"
-                  >
-                    {tag}
-                  </span>
-                ))}
+  
+              {/* Due Date */}
+              <div>
+                <h4 className="text-xs font-medium text-gray-500 mb-1">Due Date</h4>
+                <p className="text-sm font-medium text-gray-900">
+                  {formatDate(task.dueDate)}
+                </p>
               </div>
-            </div>
-
-            {/* Created / Updated By */}
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">
-                Created / Updated By
-              </h3>
-              <div className="flex items-center gap-3 mb-1">
-                <img
-                  src={task.createdBy.avatar}
-                  alt={task.createdBy.name}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div>
-                  <p className="text-xs font-medium">{task.createdBy.name}</p>
-                  <p className="text-xs text-gray-500">Created</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <img
-                  src={task.updatedBy.avatar || task.createdBy.avatar}
-                  alt={task.updatedBy.name}
-                  className="w-8 h-8 rounded-full"
-                />
-                <div>
-                  <p className="text-xs font-medium">{task.updatedBy.name}</p>
-                  <p className="text-xs text-gray-500">Updated</p>
+  
+              {/* Tags */}
+              <div>
+                <h4 className="text-xs font-medium text-gray-500 mb-2">Tags</h4>
+                <div className="flex flex-wrap gap-2">
+                  {task.tags.map((tag,idx) => (
+                    <span
+                      key={idx}
+                      className={`tag-pill tag-pill-${idx % 2}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
+  
+          {/* Activity */}
+          <Card className="bg-white p-6 border border-gray-200">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+              Activity
+            </h3>
+  
+            <div className="space-y-5">
+              {[task.createdBy, task.updatedBy].map((user, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-8 h-8 rounded-full ring-2 ring-gray-100"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-gray-900">{user.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {i === 0 ? "Created this task" : "Last updated"}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {getTimeAgo(i === 0 ? task.createdAt : task.updatedAt)}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
         </div>
       </div>
     </div>
-  );
+  )
 };
 
 export default TaskDetailPage;

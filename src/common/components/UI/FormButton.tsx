@@ -22,6 +22,7 @@ const FormButton: React.FC<ButtonProps> = ({
       '&.Mui-disabled': {
         opacity: 0.6,
         boxShadow: 'none',
+        color: 'white',
       },
       ...muiProps.sx,
     }}

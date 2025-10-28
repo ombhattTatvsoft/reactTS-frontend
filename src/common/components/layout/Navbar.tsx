@@ -19,7 +19,6 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Projects", path: "/projects" },
     { name: "Profile", path: "/profile" },
-    { name: "Task Detail", path: "/task-detail" },
   ];
 
   const handleMobileNavClick = () => setIsMobileMenuOpen(false);

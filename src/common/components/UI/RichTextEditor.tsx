@@ -1,27 +1,44 @@
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import { RichTextEditor } from "@mui-tiptap/rte";
-import { Box } from "@mui/material";
+import React from "react";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-const MUITiptapEditor = ({ value, onChange }) => {
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      // Link.configure({ openOnClick: false }),
-      // Placeholder.configure({ placeholder: "Add a comment..." }),
-    ],
-    content: value,
-    onUpdate: ({ editor }) => onChange(editor.getHTML()),
-  });
+type Props = {
+  value?: string;
+  onChange?: (html: string) => void;
+  placeholder?: string;
+  disabled?: boolean;
+};
 
+const RichTextEditor: React.FC<Props> = ({
+  value = "",
+  onChange,
+  placeholder,
+  disabled = false,
+}) => {
   return (
-    <Box sx={{ "& .ProseMirror": { minHeight: "100px", p: 1, border: "1px solid", borderColor: "grey.300", borderRadius: 1 } }}>
-      <RichTextEditor
-        editor={editor}
-        controls={[["bold", "italic", "underline"], ["bulletList", "orderedList"], ["link"]]}
+    <div>
+      <CKEditor
+        editor={ClassicEditor}
+        data={value}
+        disabled={disabled}
+        config={{
+          licenseKey: 'GPL',
+          placeholder: placeholder || "Write something...",
+          image: {
+            toolbar: ['imageTextAlternative'], // No upload
+          },
+          mediaEmbed: {
+            output: 'iframe',
+            previewsInData: true,
+          },
+        }}
+        onChange={(_event, editor) => {
+          const data = editor.getData();
+          onChange?.(data);
+        }}
       />
-    </Box>
+    </div>
   );
 };
 
-export default MUITiptapEditor;
+export default RichTextEditor;

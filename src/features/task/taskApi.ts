@@ -1,6 +1,13 @@
 import baseApi, { type ApiResponse } from "../../common/api/baseApi";
 import { TASK_ENDPOINTS } from "../../constants/endPoint";
-import type { Task, TasksResponse, updateTaskStatusPayload } from "./taskSlice";
+import type {
+  addCommentPayload,
+  CommentItem,
+  Task,
+  TaskResponse,
+  TasksResponse,
+  updateTaskStatusPayload,
+} from "./taskSlice";
 
 const taskApi = {
   createTask: (data: FormData): Promise<ApiResponse> =>
@@ -37,6 +44,12 @@ const taskApi = {
         endpoint: TASK_ENDPOINTS.GET_TASKS + `/${projectId}`,
       })
       .then((res) => res.data),
+  getTask: (taskId: string): Promise<ApiResponse<TaskResponse>> =>
+    baseApi
+      .get<TaskResponse>({
+        endpoint: TASK_ENDPOINTS.GET_TASK + `/${taskId}`,
+      })
+      .then((res) => res.data),
   updateTaskStatus: (
     data: updateTaskStatusPayload
   ): Promise<ApiResponse<{ task: Task }>> =>
@@ -44,6 +57,29 @@ const taskApi = {
       .put<updateTaskStatusPayload, { task: Task }>({
         endpoint: TASK_ENDPOINTS.UPDATE_TASK_STATUS,
         data,
+      })
+      .then((res) => res.data),
+  addComment: (
+    data: addCommentPayload
+  ): Promise<ApiResponse<{ comment: CommentItem }>> =>
+    baseApi
+      .put<addCommentPayload, { comment: CommentItem }>({
+        endpoint: TASK_ENDPOINTS.Add_COMMENT,
+        data,
+      })
+      .then((res) => res.data),
+  saveTaskAttachments: (
+    data: FormData
+  ): Promise<ApiResponse<TaskResponse>> =>
+    baseApi
+      .put<FormData, TaskResponse>({
+        endpoint: TASK_ENDPOINTS.SAVE_ATTACHMENTS,
+        data,
+        config: {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
       })
       .then((res) => res.data),
 };

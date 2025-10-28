@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Upload, X, File, Image, FileText } from "lucide-react";
 import type { AttachmentItem } from "../taskSlice";
 import { backendUrl } from "../../../common/api/baseApi";
+import { Paperclip } from "lucide-react";
 
 interface AttachmentUploaderBaseProps {
   value?: AttachmentItem[];
@@ -132,12 +133,21 @@ const AttachmentUploader: React.FC<AttachmentUploaderBaseProps> = ({
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+          <Paperclip size={16} className="text-gray-500" />
+          Attachments
+        </h3>
+        <span className="text-xs text-gray-400">
+          {value?.length} files
+        </span>
+      </div>
       <div
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
         onDragOver={handleDrag}
         onDrop={handleDrop}
-        className={`relative border-2 border-dashed rounded-xl px-6 py-4 cursor-pointer ${
+        className={`relative border border-dashed rounded-xl px-6 py-2 cursor-pointer ${
           dragActive
             ? "border-purple-500 bg-purple-50/50"
             : "border-gray-300 hover:border-purple-400 hover:bg-gray-50"
@@ -157,12 +167,12 @@ const AttachmentUploader: React.FC<AttachmentUploaderBaseProps> = ({
           className="flex flex-col items-center justify-center cursor-pointer"
         >
           <div
-            className={`p-3 rounded-full mb-3 ${
+            className={`p-2 rounded-full mb-1 ${
               dragActive ? "bg-purple-100" : "bg-gray-100 hover:bg-purple-100"
             }`}
           >
             <Upload
-              className={`w-6 h-6 ${
+              className={`w-5 h-5 ${
                 dragActive ? "text-purple-600" : "text-gray-600"
               }`}
             />
@@ -182,7 +192,7 @@ const AttachmentUploader: React.FC<AttachmentUploaderBaseProps> = ({
       </div>
 
       {files.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 mb-4">
           {files.map((file, idx) => {
             const serverFile = isServerFile(file);
             const displayName = serverFile
@@ -196,7 +206,7 @@ const AttachmentUploader: React.FC<AttachmentUploaderBaseProps> = ({
                 key={idx}
                 className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 bg-white hover:bg-gray-50"
               >
-                <div className="flex-shrink-0">{getFileIcon(displayName)}</div>
+                <div className="shrink-0">{getFileIcon(displayName)}</div>
                 <div className="min-w-[120px]">
                   {url ? (
                     <a
