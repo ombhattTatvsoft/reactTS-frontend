@@ -16,9 +16,9 @@ const AttachmentUploaderFormikWrapper: React.FC<
 > = ({
   name,
   deletedFieldName = "deletedFilenames",
-  maxFiles,
-  accept,
-  maxSizeInMB,
+  maxFiles = 5,
+  accept = '*',
+  maxSizeInMB = 5,
 }) => {
   const formik = useFormikContext<Record<string, unknown>>();
   const [field, , helpers] = useField<AttachmentItem[]>(name);
@@ -68,6 +68,7 @@ const AttachmentUploaderFormikWrapper: React.FC<
         maxFiles={maxFiles}
         maxSizeInMB={maxSizeInMB}
         allowDelete={true}
+        showSaveButton={false}
       />
   );
 };

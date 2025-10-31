@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 import Dropdown from "../UI/Dropdown";
-import socket, { joinUserRoom } from "../../../utils/socket";
-import { getUserData } from "../../../utils/manageUserData";
+import socket from "../../../utils/socket";
 import baseApi from "../../api/baseApi";
 import { NOTIFICATION_ENDPOINTS } from "../../../constants/endPoint";
 import { toast } from "react-toastify";
@@ -19,16 +18,10 @@ interface Notification {
 
 const NotificationsDropdown: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const userId = getUserData()._id;
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  // Join user room and subscribe to new notifications
   useEffect(() => {
-    if (!userId) return;
-
-    joinUserRoom(userId);
-
     socket.on("newNotification", (notification: Notification) => {
       setNotifications((prev) => [notification, ...prev]);
     });
@@ -36,9 +29,8 @@ const NotificationsDropdown: React.FC = () => {
     return () => {
       socket.off("newNotification");
     };
-  }, [userId]);
+  }, []);
 
-  // Fetch existing notifications from backend
   useEffect(() => {
     const fetchNotifications = async () => {
       try {

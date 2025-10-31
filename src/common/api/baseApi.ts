@@ -3,6 +3,9 @@ import { removeUserData } from "../../utils/manageUserData";
 import { setAuthenticated } from "../../features/auth/authSlice";
 
 export const backendUrl = "http://localhost:4000/api";
+const navigateToError = (statusCode: number) => {
+  window.location.href = `/error/${statusCode}`;
+};
 
 export interface ApiResponse<T = unknown> {
   message: string;
@@ -27,13 +30,21 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.status === HttpStatusCode.Unauthorized) {
+    const status = error.response?.status;
+    if (status === HttpStatusCode.Unauthorized) {
       removeUserData();
       setAuthenticated(false);
+    } else if (
+      status === HttpStatusCode.Forbidden ||
+      status === HttpStatusCode.NotFound ||
+      status === HttpStatusCode.InternalServerError
+    ) {
+      navigateToError(status);
     }
-    const err = error.response.data.details
-      ? error.response.data.details[0]
-      : error.response.data.error;
+    const err =
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Something went wrong";
     return Promise.reject(err);
   }
 );

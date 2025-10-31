@@ -64,17 +64,36 @@ const TaskCard = ({
               <h3 className="text-sm font-semibold text-gray-800 leading-tight pr-2 truncate hover:text-indigo-600 transition-colors">
                 {task.title}
               </h3>
-              <Tooltip title={task.description} arrow>
-                <p className="text-sm text-gray-600 min-h-10 line-clamp-2 overflow-y-auto hide-scrollbar">
-                  {task.description}
-                </p>
+              <Tooltip
+                title={task.description ? (<div
+                  dangerouslySetInnerHTML={{
+                    __html: task.description,
+                  }}
+                />) : ''}
+                arrow
+              >
+                <div
+                  className="prose prose-sm max-w-none text-sm text-gray-600 min-h-10 max-h-12 overflow-y-auto hide-scrollbar wrap-break-word relative"
+                  style={{
+                    wordBreak: "break-word",
+                    overflowWrap: "anywhere",
+                    whiteSpace: "normal",
+                    display: "block",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: task.description,
+                  }}
+                />
               </Tooltip>
             </div>
 
             {(currentProjectRole === "owner" ||
               (currentProjectRole === "manager" &&
                 task.assignee._id !== userId)) && (
-              <div className="flex gap-2 ml-4 shrink-0" onClick={(e) => e.stopPropagation()}>
+              <div
+                className="flex gap-2 ml-4 shrink-0"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <Tooltip title="Edit Task" arrow>
                   <button onClick={onEdit} className="edit-btn">
                     <Edit2 size={18} />
@@ -91,10 +110,7 @@ const TaskCard = ({
 
           <div className="flex flex-wrap gap-1.5 mb-3">
             {task.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className={`tag-pill tag-pill-${idx % 2}`}
-              >
+              <span key={idx} className={`tag-pill tag-pill-${idx % 2}`}>
                 {tag}
               </span>
             ))}

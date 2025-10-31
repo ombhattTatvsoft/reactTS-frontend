@@ -15,6 +15,8 @@ import Project from "../features/project/pages/Project";
 import ProfilePage from "../features/profile/pages/ProfilePage";
 import TaskPage from "../features/task/pages/TaskPage";
 import TaskDetailPage from "../features/task/pages/TaskDetailPage";
+import { joinUserRoom } from "../utils/socket";
+import ErrorPage from "../common/components/UI/ErrorPage";
 
 function AppRoutes() {
 
@@ -28,6 +30,7 @@ function AppRoutes() {
           setUserData(user);
           dispatch(setUser(user));
           dispatch(setAuthenticated(true));
+          joinUserRoom(user._id);
         } catch {
           removeUserData();
           dispatch(setAuthenticated(false));
@@ -53,6 +56,8 @@ function AppRoutes() {
           <Route path="/projects/:projectId/tasks" element={<TaskPage />} />
         </Route>
       </Route>
+      <Route path="/error/:code" element={<ErrorPage />} />
+      <Route path="/*" element={<ErrorPage />} />
     </Routes>
   );
 }

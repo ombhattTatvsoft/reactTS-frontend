@@ -50,6 +50,9 @@ const FieldRenderer : React.FC<FieldRendererProps> = ({field, loading}) => {
     case "textarea":
       return <FormTextArea {...commonProps} {...field} />;
 
+    // case "richtext":
+    //   return <FormTextArea {...commonProps} {...field} />;
+
     case "button":
     case "submit":
     case "reset":

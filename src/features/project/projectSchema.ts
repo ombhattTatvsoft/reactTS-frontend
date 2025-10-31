@@ -12,7 +12,7 @@ export const ProjectSchema = (isUpdate = false) => {
       .max(30, SCHEMA.PROJECT_MAX)
       .required(SCHEMA.NAME_REQ),
     description: Yup.string()
-      .max(200, SCHEMA.DESC_MAX)
+      .max(500, SCHEMA.DESC_MAX)
       .default(""),
     startDate: Yup.date()
       .required(SCHEMA.STARTDATE_REQ)

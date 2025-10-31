@@ -1,4 +1,9 @@
-import { createAsyncThunk, createSlice, isAnyOf, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  isAnyOf,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import type { ApiResponse } from "../../common/api/baseApi";
 import type { TaskPayload } from "./taskSchema";
 import taskApi from "./taskApi";
@@ -12,12 +17,12 @@ export type AttachmentItem =
       originalName: string;
       url: string;
       size: number;
-      uploadedBy?: string;
+      uploadedBy?: user;
       uploadedAt?: string;
     };
 
 export type CommentItem = {
-  id: string;
+  _id: string;
   user: user;
   text: string;
   createdAt: string;
@@ -38,7 +43,7 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   comments: CommentItem[];
-  // activity?: { id: string; actor: user; text: string; createdAt: string }[];
+  assigneeRole? : string;
   __v: number;
 }
 
@@ -48,7 +53,7 @@ export interface TasksResponse {
 export interface TaskResponse {
   task: Task | null;
 }
-interface taskState extends TasksResponse,TaskResponse {
+interface taskState extends TasksResponse, TaskResponse {
   loading: boolean;
 }
 
@@ -145,8 +150,10 @@ export interface updateTaskStatusPayload {
   id: string;
   status: Task["status"];
 }
-export const updateTaskStatus = createAsyncThunk<ApiResponse<{ task: Task }>,updateTaskStatusPayload>(
-  "task/updateTaskStatus", async (data, { rejectWithValue }) => {
+export const updateTaskStatus = createAsyncThunk<
+  ApiResponse<{ task: Task }>,
+  updateTaskStatusPayload
+>("task/updateTaskStatus", async (data, { rejectWithValue }) => {
   try {
     return await taskApi.updateTaskStatus(data);
   } catch (err) {
@@ -158,22 +165,26 @@ export interface addCommentPayload {
   taskId: string;
   text: string;
 }
-export const addComment = createAsyncThunk<ApiResponse<{ comment: CommentItem }>,addCommentPayload>(
-  "task/addComment", async (data, { rejectWithValue }) => {
-  try {
-    return await taskApi.addComment(data);
-  } catch (err) {
-    return rejectWithValue(err);
+export const addComment = createAsyncThunk<ApiResponse, addCommentPayload>(
+  "task/addComment",
+  async (data, { rejectWithValue }) => {
+    try {
+      return await taskApi.addComment(data);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
   }
-});
+);
 
 export interface saveTaskAttachmentsPayload {
   taskId: string;
   files: File[];
   deletedFilenames: string[];
 }
-export const saveTaskAttachments = createAsyncThunk<ApiResponse<TaskResponse>,saveTaskAttachmentsPayload>(
-  "task/saveTaskAttachments", async (data, { rejectWithValue }) => {
+export const saveTaskAttachments = createAsyncThunk<
+  ApiResponse,
+  saveTaskAttachmentsPayload
+>("task/saveTaskAttachments", async (data, { rejectWithValue }) => {
   try {
     const formData = new FormData();
     formData.append("taskId", data.taskId);
@@ -181,9 +192,13 @@ export const saveTaskAttachments = createAsyncThunk<ApiResponse<TaskResponse>,sa
       data.files.forEach((f) => formData.append("attachments", f as File));
     }
     if (data.deletedFilenames.length) {
-      data.deletedFilenames.forEach((d) => formData.append("deletedFilenames[]", d as string));
+      data.deletedFilenames.forEach((d) =>
+        formData.append("deletedFilenames[]", d as string)
+      );
     }
-    return await taskApi.saveTaskAttachments(formData);
+    const res = await taskApi.saveTaskAttachments(formData);
+    toast.success(res.message);
+    return res;
   } catch (err) {
     return rejectWithValue(err);
   }
@@ -193,21 +208,27 @@ const taskSlice = createSlice({
   name: "task",
   initialState,
   reducers: {
-    commentReceived: (state, action: PayloadAction<{ taskId: string; comment: CommentItem }>) => {
+    commentReceived: (
+      state,
+      action: PayloadAction<{ taskId: string; comment: CommentItem }>
+    ) => {
       const { taskId, comment } = action.payload;
       if (state.task && state.task._id === taskId) {
         state.task.comments = state.task.comments || [];
-        if (!state.task.comments.find((c) => c.id === comment.id)) {
+        if (!state.task.comments.find((c) => c._id === comment._id)) {
           state.task.comments.push(comment);
         }
       }
     },
-    attachmentsUpdatedLocal: (state, action: PayloadAction<{ taskId: string; attachments: AttachmentItem[] }>) => {
+    attachmentsUpdatedLocal: (
+      state,
+      action: PayloadAction<{ taskId: string; attachments: AttachmentItem[] }>
+    ) => {
       const { taskId, attachments } = action.payload;
       if (state.task && state.task._id === taskId) {
         state.task.attachments = attachments;
       }
-    }
+    },
   },
   extraReducers: (builder) => {
     builder

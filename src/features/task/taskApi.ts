@@ -2,7 +2,6 @@ import baseApi, { type ApiResponse } from "../../common/api/baseApi";
 import { TASK_ENDPOINTS } from "../../constants/endPoint";
 import type {
   addCommentPayload,
-  CommentItem,
   Task,
   TaskResponse,
   TasksResponse,
@@ -50,29 +49,23 @@ const taskApi = {
         endpoint: TASK_ENDPOINTS.GET_TASK + `/${taskId}`,
       })
       .then((res) => res.data),
-  updateTaskStatus: (
-    data: updateTaskStatusPayload
-  ): Promise<ApiResponse<{ task: Task }>> =>
+  updateTaskStatus: (data: updateTaskStatusPayload): Promise<ApiResponse<{ task: Task }>> =>
     baseApi
       .put<updateTaskStatusPayload, { task: Task }>({
         endpoint: TASK_ENDPOINTS.UPDATE_TASK_STATUS,
         data,
       })
       .then((res) => res.data),
-  addComment: (
-    data: addCommentPayload
-  ): Promise<ApiResponse<{ comment: CommentItem }>> =>
+  addComment: (data: addCommentPayload): Promise<ApiResponse> =>
     baseApi
-      .put<addCommentPayload, { comment: CommentItem }>({
+      .put<addCommentPayload, unknown>({
         endpoint: TASK_ENDPOINTS.Add_COMMENT,
         data,
       })
       .then((res) => res.data),
-  saveTaskAttachments: (
-    data: FormData
-  ): Promise<ApiResponse<TaskResponse>> =>
+  saveTaskAttachments: (data: FormData): Promise<ApiResponse> =>
     baseApi
-      .put<FormData, TaskResponse>({
+      .put<FormData, unknown>({
         endpoint: TASK_ENDPOINTS.SAVE_ATTACHMENTS,
         data,
         config: {

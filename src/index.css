@@ -11,16 +11,47 @@
 
 .ck-editor__editable {
   @apply prose max-w-none;
-  min-height: 200px;
+  min-height: 100px;
 }
-.ck-content ul,
-.ck-content ol {
-  padding-left: 1.2rem !important;
+.ck.ck-editor {
+  border-radius: 2rem !important; /* rounded-xl */
+  overflow: hidden !important;
 }
 
+.ck.ck-editor__editable.ck-focused {
+  border : 0 !important;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.25) !important;
+}
+
+.ck.ck-toolbar {
+  border-bottom: 1px solid #e5e7eb !important;
+  background-color: #fafafa !important; /* gray-50 */
+}
+
+.ck-content ul,
+.ck-content ol{
+  padding-left: 1.2rem !important;
+  margin-top: 0.25rem !important;
+  margin-bottom: 0.25rem !important;
+}
+.ck-content p {
+  margin:0 !important;
+}
+.ck-content blockquote, blockquote {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
 .ck-content li {
   margin-left: 0.25rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
 }
+
+ul, li, ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
 @layer utilities {
   .status-pending {
     @apply bg-gray-100 text-gray-700;
@@ -61,5 +92,8 @@
   }
   .tag-pill-1{
     @apply bg-purple-50 text-purple-700;
+  }
+  .description-box{
+    @apply prose max-w-none bg-linear-to-br from-gray-50 to-gray-100 cursor-all-scroll rounded-xl p-4 text-sm text-gray-700 leading-relaxed shadow-inner flex-1 overflow-y-auto;
   }
 }

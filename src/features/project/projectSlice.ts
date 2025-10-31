@@ -5,23 +5,25 @@ import type { ProjectPayload } from "./projectSchema";
 import projectApi from "./projectApi";
 import type { user } from "../auth/authSlice";
 
-export type projectRole = "manager" | "developer" | "tester" | "owner";
-
-interface projectState extends ProjectsResponse,ProjectMembersResponse {
+interface projectState extends ProjectsResponse {
   loading: boolean;
+  project: Project | null;
 }
 
 const initialState: projectState = {
   loading: false,
+  project: null,
   projects: {
     myProjects: [],
     assignedProjects: [],
   },
-  allMembers : {
-    members: [],
-    pendingMembers: [],
-  }
+  // allMembers : {
+  //   members: [],
+  //   pendingMembers: [],
+  // }
 };
+
+export type projectRole = "manager" | "developer" | "tester" | "owner";
 
 export interface ProjectMember {
   _id: string;
@@ -52,12 +54,16 @@ export interface ProjectsResponse {
   };
 }
 
-export interface ProjectMembersResponse {
-  allMembers: {
-    members: Project['members'];
-    pendingMembers: Project['pendingMembers'];
-  };
+export interface ProjectResponse {
+  project: Project;
 }
+
+// export interface ProjectMembersResponse {
+//   allMembers: {
+//     members: Project['members'];
+//     pendingMembers: Project['pendingMembers'];
+//   };
+// }
 
 export const createProject = createAsyncThunk<ApiResponse, ProjectPayload>(
   "project/createProject",
@@ -92,16 +98,16 @@ export const deleteProject = createAsyncThunk<ApiResponse,string>(
   }
 );
 
-export const getProjectMembers = createAsyncThunk<ApiResponse<ProjectMembersResponse>,string>(
-  "project/getProjectMembers",
-  async (id, { rejectWithValue }) => {
-    try {
-      return await projectApi.getProjectMembers(id);
-    } catch (err) {
-      return rejectWithValue(err);
-    }
-  }
-);
+// export const getProjectMembers = createAsyncThunk<ApiResponse<ProjectMembersResponse>,string>(
+//   "project/getProjectMembers",
+//   async (id, { rejectWithValue }) => {
+//     try {
+//       return await projectApi.getProjectMembers(id);
+//     } catch (err) {
+//       return rejectWithValue(err);
+//     }
+//   }
+// );
 
 export const getProjects = createAsyncThunk<ApiResponse<ProjectsResponse>>(
   "project/getProjects",
@@ -114,20 +120,35 @@ export const getProjects = createAsyncThunk<ApiResponse<ProjectsResponse>>(
   }
 );
 
+export const getProject = createAsyncThunk<ApiResponse<ProjectResponse>,string>(
+  "project/getProject",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await projectApi.getProject(id);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 const projectSlice = createSlice({
   name: "project",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
+    .addCase(getProject.fulfilled, (state, action) => {
+      state.loading = false;
+      state.project = action.payload.data!.project;
+    })
       .addCase(getProjects.fulfilled, (state, action) => {
         state.loading = false;
         state.projects = action.payload.data!.projects;
       })
-      .addCase(getProjectMembers.fulfilled, (state, action) => {
-        state.loading = false;
-        state.allMembers = action.payload.data!.allMembers;
-      })
+      // .addCase(getProjectMembers.fulfilled, (state, action) => {
+      //   state.loading = false;
+      //   state.allMembers = action.payload.data!.allMembers;
+      // })
       .addMatcher(
         isAnyOf(createProject.fulfilled, editProject.fulfilled,deleteProject.fulfilled),
         (state, action) => {
@@ -136,15 +157,16 @@ const projectSlice = createSlice({
         }
       )
       .addMatcher(
-        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending,getProjectMembers.pending,),
+        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending,getProject.pending),
         (state) => {
           state.loading = true;
         }
       )
       .addMatcher(
-        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected,getProjectMembers.rejected),
+        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected,getProject.rejected),
         (state, action) => {
           state.loading = false;
+          console.log(action.payload);
           toast.error(action.payload as string);
         }
       );

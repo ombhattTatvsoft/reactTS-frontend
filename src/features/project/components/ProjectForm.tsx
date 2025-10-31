@@ -6,7 +6,6 @@ import {
   createInputField,
   createReactNode,
   createSelectDropdown,
-  createTextArea,
 } from "../../../common/utils/FormFieldGenerator";
 import { ProjectSchema, type ProjectPayload } from "../projectSchema";
 import type { AppDispatch } from "../../../app/store";
@@ -14,6 +13,7 @@ import { createProject, editProject, getProjects } from "../projectSlice";
 import { MemberFields } from "./AddMember";
 import { useCallback, useMemo } from "react";
 import { startOfToday } from "date-fns";
+import FormRichTextEditor from "../../../common/components/UI/FormRichTextEditor";
 
 interface ProjectFormProps {
   initialValues: ProjectPayload | null;
@@ -71,20 +71,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         containerclassname: "w-1/2 px-2",
         minDatefunc: (values) => values.startDate || today,
       }),
-      createTextArea({
-        name: "description",
-        label: "Description",
-        containerclassname: "w-full px-2",
-      }),
-      // createSelectDropdown({
-      //   name: "priority",
-      //   label: "Priority",
-      //   options: [
-      //     { value: "low", label: "Low" },
-      //     { value: "medium", label: "Medium" },
-      //     { value: "high", label: "High" },
-      //   ],
-      // }),
+      createReactNode(<FormRichTextEditor name="description"/>),
       createReactNode(<MemberFields></MemberFields>),
       createButton({
         name: "submit",

@@ -8,20 +8,19 @@ import {
   createInputField,
   createReactNode,
   createSelectDropdown,
-  createTextArea,
 } from "../../../common/utils/FormFieldGenerator";
 import FormikForm from "../../../common/components/UI/FormikForm";
-import { startOfToday } from "date-fns";
 import { createTask, editTask, getTasks, type Task } from "../taskSlice";
-import type { ProjectMembersResponse } from "../../project/projectSlice";
 import { getUserData } from "../../../utils/manageUserData";
 import AttachmentUploaderFormikWrapper from "./AttachmentUploaderFormik";
+import FormRichTextEditor from "../../../common/components/UI/FormRichTextEditor";
+import type { Project } from "../../project/projectSlice";
 
 interface TaskFormProps {
   initialValues: TaskPayload | null;
   setShowModal: (value: boolean) => void;
   projectId: string;
-  allMembers: ProjectMembersResponse["allMembers"];
+  allMembers: {members: Project['members'], pendingMembers: Project['pendingMembers']};
 }
 const TaskForm: React.FC<TaskFormProps> = ({
   initialValues,
@@ -30,7 +29,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
   allMembers,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const today = startOfToday();
   const currentUserId = getUserData()._id;
   const isUpdate = Boolean(initialValues);
 
@@ -102,7 +100,6 @@ const TaskForm: React.FC<TaskFormProps> = ({
         label: "Due Date",
         containerclassname: "w-1/2 px-2",
         disablePast: !isUpdate,
-        minDatefunc: () => today,
       }),
       createInputField({
         name: "tags",
@@ -111,19 +108,17 @@ const TaskForm: React.FC<TaskFormProps> = ({
         containerclassname: "w-1/2 px-2",
       }),
       createReactNode(
-        <AttachmentUploaderFormikWrapper
+        <div className="mb-4">
+          <AttachmentUploaderFormikWrapper
           name="attachments"
           deletedFieldName="deletedFilenames"
           accept="image/*,.pdf,.doc,.docx"
           maxFiles={5}
           maxSizeInMB={5}
         />
+        </div>
       ),
-      createTextArea({
-        name: "description",
-        label: "Description",
-        containerclassname: "w-full px-2",
-      }),
+      createReactNode(<FormRichTextEditor name="description" placeholder="Provide details" label="Description"/>),
       createButton({
         name: "submit",
         type: "submit",
@@ -133,13 +128,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         containerclassname: "px-2 w-full flex align-center justify-end",
       }),
     ],
-    [
-      allMembers.members,
-      allMembers.pendingMembers,
-      currentUserId,
-      isUpdate,
-      today,
-    ]
+    [allMembers.members, allMembers.pendingMembers, currentUserId, isUpdate]
   );
 
   const handleAdd = useCallback(

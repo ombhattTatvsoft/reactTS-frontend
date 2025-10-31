@@ -18,7 +18,7 @@ import type { AppDispatch } from "../../../app/store";
 import FormikForm from "../../../common/components/UI/FormikForm";
 import { updateUserPassword, updateUserProfile } from "../../auth/authSlice";
 import { backendUrl } from "../../../common/api/baseApi";
-import DefaultAvatar from './../components/DefaultAvatar';
+import DefaultAvatar from '../../../common/components/UI/DefaultAvatar';
 
 const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -75,7 +75,6 @@ const ProfilePage = () => {
       setAvatarFile(null);
     } catch (error) {
       console.error("Profile update failed:", error);
-      alert("Failed to update profile.");
     }
   };
 
@@ -146,7 +145,7 @@ const ProfilePage = () => {
                     className="w-32 h-32 rounded-full object-cover border-4 border-purple-100"
                   />
                 ) : (
-                  <DefaultAvatar name={editForm.name} className="w-32 h-32 text-4xl font-bold"/>
+                  <DefaultAvatar name={editForm.name} className="w-32 h-32 text-4xl font-bold border-4"/>
                 )}
 
                 {isEditingProfile && (
