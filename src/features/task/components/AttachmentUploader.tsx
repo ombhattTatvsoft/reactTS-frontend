@@ -53,6 +53,9 @@ const AttachmentUploader: React.FC<AttachmentUploaderProps> = ({
 
   const emitSave = () => {
     onSave?.({ files: filesToUpload, deletedFilenames });
+    setDeletedFilenames([]);
+    setCurrentFiles([]);
+    setFilesToUpload([]);
   };
 
   const validateFile = (file: File) => {

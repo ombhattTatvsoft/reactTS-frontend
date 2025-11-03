@@ -147,6 +147,7 @@ const TaskDetailPage = () => {
     }
   };
 
+  // const mentions = task?.projectMembers?.map((member) => (`@${member.user.name}`)) || [];
   if (!task || loading) return <Loader />;
   return (
     <div className="space-y-6">
@@ -215,10 +216,10 @@ const TaskDetailPage = () => {
               </span>
             </h3>
 
-            <CommentsList comments={task.comments} />
+            <CommentsList comments={task.comments} members={task.projectMembers}/>
 
             <div className="space-y-4">
-              <RichTextEditor value={newComment} onChange={setNewComment} />
+              <RichTextEditor value={newComment} onChange={setNewComment} mentions={task.projectMembers}/>
 
               <div className="flex justify-end">
                 <FormButton

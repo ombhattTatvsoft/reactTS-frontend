@@ -44,10 +44,10 @@ const ErrorPage = () => {
         </div>
         <div className="flex justify-center">
         <button
-          onClick={() => navigate("/")}
+          onClick={() => navigate(-1)}
           className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
         >
-          <Home size={18} /> Go Home
+          <Home size={18} /> Go Back
         </button>
         </div>
       </div>

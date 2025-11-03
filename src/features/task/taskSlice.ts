@@ -44,6 +44,7 @@ export interface Task {
   updatedAt: string;
   comments: CommentItem[];
   assigneeRole? : string;
+  projectMembers? : {user: user, role: string}[];
   __v: number;
 }
 

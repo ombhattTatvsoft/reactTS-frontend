@@ -66,6 +66,8 @@ export const MemberFields: React.FC<MemberFieldsProps> = ({
                 border: '1px solid #e5e7eb',
                 paddingTop:2,
                 marginBottom:3,
+                maxHeight:222,
+                overflowY:'auto'
               }}
             >
           {members.map((_: unknown, index: number) => (

@@ -11,7 +11,7 @@
 
 .ck-editor__editable {
   @apply prose max-w-none;
-  min-height: 100px;
+  min-height: 160px;
 }
 .ck.ck-editor {
   border-radius: 2rem !important; /* rounded-xl */
@@ -45,6 +45,14 @@
   margin-left: 0.25rem;
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
+}
+
+.mention {
+  background-color: #e0f2fe;
+  color: #1e40af;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 500;
 }
 
 ul, li, ol {

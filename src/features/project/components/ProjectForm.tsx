@@ -71,7 +71,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         containerclassname: "w-1/2 px-2",
         minDatefunc: (values) => values.startDate || today,
       }),
-      createReactNode(<FormRichTextEditor name="description"/>),
+      createReactNode(<FormRichTextEditor name="description" label="Description"/>),
       createReactNode(<MemberFields></MemberFields>),
       createButton({
         name: "submit",

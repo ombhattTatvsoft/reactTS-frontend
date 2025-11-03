@@ -34,7 +34,7 @@ const NotificationsDropdown: React.FC = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const res = await baseApi.get<{notifications : Notification[]}>({
+        const res = await baseApi.get<{ notifications: Notification[] }>({
           endpoint: NOTIFICATION_ENDPOINTS.GET_NOTIFICATIONS,
         });
         if (res.data?.data) {
@@ -76,9 +76,7 @@ const NotificationsDropdown: React.FC = () => {
   return (
     <Dropdown trigger={trigger} width="w-80">
       <div className="px-4 py-2 border-b border-purple-100 flex justify-between items-center sticky top-0 bg-white z-10">
-        <h3 className="font-bold fancy-text">
-          Notifications
-        </h3>
+        <h3 className="font-bold fancy-text">Notifications</h3>
         {unreadCount > 0 && (
           <button
             onClick={markAllAsRead}
@@ -90,18 +88,21 @@ const NotificationsDropdown: React.FC = () => {
       </div>
       <div>
         {notifications.length === 0 ? (
-          <p className="p-6 text-gray-500 text-sm text-center">No notifications</p>
+          <p className="p-6 text-gray-500 text-sm text-center">
+            No notifications
+          </p>
         ) : (
           notifications.map((n) => (
             <div
               key={n._id}
-              className={`p-4 border-b border-purple-50 cursor-pointer hover:bg-purple-50/90 transition-all duration-300 hover:border-l-4 hover:border-l-purple-400 ${
+              className={`p-4 border-b border-purple-50 cursor-pointer hover:bg-purple-50/90 transition-all duration-100 hover:border-l-4 hover:border-l-purple-400 ${
                 !n.read ? "bg-purple-300/30" : ""
               }`}
             >
-              <p className="text-sm text-gray-800 font-medium leading-relaxed">
-                {n.message}
-              </p>
+              <p
+                className="text-sm text-gray-800 font-medium leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: n.message }}
+              />
               <p className="text-xs text-purple-600 font-medium mt-1.5">
                 {new Date(n.createdAt).toLocaleString()}
               </p>
