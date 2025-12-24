@@ -14,6 +14,7 @@ import {
   attachmentsUpdatedLocal,
   commentReceived,
   getTask,
+  getTaskActivity,
   saveTaskAttachments,
   type Task,
 } from "../taskSlice";
@@ -30,8 +31,8 @@ import { backendUrl } from "../../../common/api/baseApi";
 import DefaultAvatar from "../../../common/components/UI/DefaultAvatar";
 import socket from "../../../utils/socket";
 import CommentsList from "../components/CommentsList";
+import ActivityTimeline from "../components/ActivityTimeline";
 
-// Components
 const StatusBadge = ({ status }: { status: Task["status"] }) => {
   const config = {
     todo: {
@@ -99,7 +100,7 @@ const PriorityBadge = ({ priority }: { priority: Task["priority"] }) => {
 const TaskDetailPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { taskId } = useParams<{ taskId: string }>();
-  const { loading, task } = useSelector((state: RootState) => state.task);
+  const { loading, task, taskActivity } = useSelector((state: RootState) => state.task);
 
   const [newComment, setNewComment] = useState("");
   const navigate = useNavigate();
@@ -110,6 +111,10 @@ const TaskDetailPage = () => {
 
   useEffect(() => {
     dispatch(getTask(taskId));
+  }, [dispatch, taskId]);
+
+  useEffect(() => {
+    dispatch(getTaskActivity(taskId));
   }, [dispatch, taskId]);
 
   useEffect(() => {
@@ -147,7 +152,6 @@ const TaskDetailPage = () => {
     }
   };
 
-  // const mentions = task?.projectMembers?.map((member) => (`@${member.user.name}`)) || [];
   if (!task || loading) return <Loader />;
   return (
     <div className="space-y-6">
@@ -291,41 +295,8 @@ const TaskDetailPage = () => {
             </div>
           </Card>
 
-          {/* Activity */}
-          <Card className="bg-white p-6 border border-gray-200">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
-              Activity
-            </h3>
-
-            <div className="space-y-5">
-              {[task.createdBy, task.updatedBy].map((user, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  {user.avatar ? (
-                    <img
-                      src={backendUrl + user.avatar}
-                      alt="Profile"
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <DefaultAvatar
-                      name={task.assignee.name}
-                      className="w-10 h-10 font-medium"
-                    />
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-gray-900">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {i === 0 ? "Created this task" : "Last updated"}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {getTimeAgo(i === 0 ? task.createdAt : task.updatedAt)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+          <Card className="bg-white p-6">
+            <div className="max-h-108 overflow-y-auto hide-scrollbar cursor-pointer"><ActivityTimeline activities={taskActivity}/></div>
           </Card>
         </div>
       </div>

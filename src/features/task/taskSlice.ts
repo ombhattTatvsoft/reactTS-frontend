@@ -48,13 +48,27 @@ export interface Task {
   __v: number;
 }
 
+export interface TaskActivity {
+  _id: string;
+  taskId: string;
+  performedBy: user;
+  performedAt: Date;
+  action?:{
+    field: "title" | "description" | "status" | "priority" | "assignee" | "dueDate" | "attachments";
+    oldValue: string | null;
+    newValue: string | null;
+  }
+}
 export interface TasksResponse {
   tasks: Task[];
 }
 export interface TaskResponse {
   task: Task | null;
 }
-interface taskState extends TasksResponse, TaskResponse {
+export interface TaskActivityResponse {
+  taskActivity: TaskActivity[];
+}
+interface taskState extends TasksResponse, TaskResponse, TaskActivityResponse {
   loading: boolean;
 }
 
@@ -62,6 +76,7 @@ const initialState: taskState = {
   loading: false,
   tasks: [],
   task: null,
+  taskActivity: [],
 };
 
 // utils to build FormData from TaskPayload
@@ -141,6 +156,17 @@ export const getTask = createAsyncThunk<ApiResponse<TaskResponse>, string>(
   async (taskId, { rejectWithValue }) => {
     try {
       return await taskApi.getTask(taskId);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const getTaskActivity = createAsyncThunk<ApiResponse<TaskActivityResponse>, string>(
+  "task/getTaskActivity",
+  async (taskId, { rejectWithValue }) => {
+    try {
+      return await taskApi.getTaskActivity(taskId);
     } catch (err) {
       return rejectWithValue(err);
     }
@@ -241,6 +267,10 @@ const taskSlice = createSlice({
         state.loading = false;
         state.task = action.payload.data!.task;
       })
+      .addCase(getTaskActivity.fulfilled, (state, action) => {
+        state.loading = false;
+        state.taskActivity = action.payload.data!.taskActivity;
+      })
       .addCase(updateTaskStatus.fulfilled, (state, action) => {
         state.loading = false;
         const updatedTask = action.payload.data!.task;
@@ -269,7 +299,8 @@ const taskSlice = createSlice({
           getTasks.pending,
           getTask.pending,
           editTask.pending,
-          deleteTask.pending
+          deleteTask.pending,
+          getTaskActivity.pending
         ),
         (state) => {
           state.loading = true;
@@ -282,7 +313,8 @@ const taskSlice = createSlice({
           getTasks.rejected,
           getTask.rejected,
           editTask.rejected,
-          deleteTask.rejected
+          deleteTask.rejected,
+          getTaskActivity.rejected
         ),
         (state, action) => {
           state.loading = false;

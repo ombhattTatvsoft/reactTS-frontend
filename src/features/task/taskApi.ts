@@ -3,6 +3,7 @@ import { TASK_ENDPOINTS } from "../../constants/endPoint";
 import type {
   addCommentPayload,
   Task,
+  TaskActivityResponse,
   TaskResponse,
   TasksResponse,
   updateTaskStatusPayload,
@@ -47,6 +48,12 @@ const taskApi = {
     baseApi
       .get<TaskResponse>({
         endpoint: TASK_ENDPOINTS.GET_TASK + `/${taskId}`,
+      })
+      .then((res) => res.data),
+  getTaskActivity: (taskId: string): Promise<ApiResponse<TaskActivityResponse>> =>
+    baseApi
+      .get<TaskActivityResponse>({
+        endpoint: TASK_ENDPOINTS.GET_TASKACTIVITY + `/${taskId}`,
       })
       .then((res) => res.data),
   updateTaskStatus: (data: updateTaskStatusPayload): Promise<ApiResponse<{ task: Task }>> =>

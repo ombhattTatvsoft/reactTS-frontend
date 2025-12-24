@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { User as UserIcon, Lock, Camera, Save, X } from "lucide-react";
 import Card from "../../../common/components/UI/Card";
@@ -19,6 +19,7 @@ import FormikForm from "../../../common/components/UI/FormikForm";
 import { updateUserPassword, updateUserProfile } from "../../auth/authSlice";
 import { backendUrl } from "../../../common/api/baseApi";
 import DefaultAvatar from '../../../common/components/UI/DefaultAvatar';
+import { formatDate } from "../../../utils/dateTime.util";
 
 const ProfilePage = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,15 +37,6 @@ const ProfilePage = () => {
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [editForm, setEditForm] = useState(initialEditForm);
-
-  const formatDate = useCallback((dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }, []);
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

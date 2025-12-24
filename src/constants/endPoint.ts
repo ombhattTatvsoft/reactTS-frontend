@@ -29,6 +29,7 @@ export const TASK_ENDPOINTS = {
     DELETE_TASK : '/task/deleteTask',
     GET_TASKS: "/task/getTasks",
     GET_TASK: "/task/getTask",
+    GET_TASKACTIVITY: "/task/getTaskActivity",
     UPDATE_TASK_STATUS: "/task/updateTaskStatus",
     Add_COMMENT:"/task/addComment",
     SAVE_ATTACHMENTS:"/task/saveAttachments",
