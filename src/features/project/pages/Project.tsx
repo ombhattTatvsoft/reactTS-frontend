@@ -126,7 +126,7 @@ const ProjectPage = () => {
   if (loading) return <Loader />;
 
   return (
-    <>
+    <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-3">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Projects</h1>
@@ -242,7 +242,7 @@ const ProjectPage = () => {
         description="Are you sure you want to delete this project? Subsequent tasks will also be deleted. This action cannot be undone."
         confirmText="Delete Project"
       />
-    </>
+    </div>
   );
 };
 

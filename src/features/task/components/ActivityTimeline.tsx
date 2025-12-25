@@ -27,12 +27,18 @@ interface ActivityTimelineProps{
           case "assignee":
           case "status":
           case "priority":
-          case "dueDate":
             return {
               icon: Edit3,
               color: "purple",
               title: `Changed ${action.field.charAt(0).toUpperCase() + action.field.slice(1)}`,
               description: `Updated ${action.field} from ${action.oldValue?.replace('-',' ')} to ${action.newValue?.replace('-',' ')}`,
+            };
+          case "dueDate":
+            return {
+              icon: Edit3,
+              color: "purple",
+              title: `Changed Due Date`,
+              description: `Updated due date from ${formatDate(action.oldValue!)} to ${formatDate(action.newValue!)}`,
             };
           case "attachments":
             if (action.newValue && !action.oldValue) {

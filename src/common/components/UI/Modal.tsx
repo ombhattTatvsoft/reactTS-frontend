@@ -6,6 +6,7 @@ interface CommonModalProps {
   open: boolean;
   onClose: () => void;
   title?: string;
+  dailogHead?: React.ReactNode;
   children: React.ReactNode;
   width?: "xs" | "sm" | "md" | "lg" | "xl";
 }
@@ -14,6 +15,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
   open,
   onClose,
   title,
+  dailogHead,
   children,
   width = "md",
 }) => (
@@ -43,6 +45,7 @@ const CommonModal: React.FC<CommonModalProps> = ({
         <CloseIcon />
       </IconButton>
     </DialogTitle>
+    {dailogHead}
     <DialogContent dividers sx={{scrollbarWidth:'thin'}}>{children}</DialogContent>
   </Dialog>
 );

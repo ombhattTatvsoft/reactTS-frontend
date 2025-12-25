@@ -32,7 +32,7 @@ export interface Task {
   projectId: string;
   title: string;
   description: string;
-  status: "todo" | "in-progress" | "completed";
+  status: string;
   priority: "low" | "medium" | "high";
   assignee: user;
   dueDate: Date;

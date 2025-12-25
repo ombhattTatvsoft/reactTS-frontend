@@ -1,13 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Plus,
-  Clock,
-  CheckCircle2,
   Circle,
-  ArrowLeft,
-  Calendar,
   Users,
-  AlertCircle,
+  Clock,
+  CheckCircle
 } from "lucide-react";
 import FormButton from "../../../common/components/UI/FormButton";
 import SearchInput from "../../../common/components/UI/SearchInput";
@@ -26,28 +23,26 @@ import {
 } from "../taskSlice";
 import Loader from "../../../common/components/UI/Loader";
 import DeleteModal from "../../../common/components/UI/DeleteModal";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import {
   getProject,
-  type Project,
+  getProjectConfig,
   type ProjectResponse,
   type projectRole,
 } from "../../project/projectSlice";
 import { getUserData } from "../../../utils/manageUserData";
 import type { ApiResponse } from "../../../common/api/baseApi";
 import MemberCard from "../components/MemberCard";
-import Card from "../../../common/components/UI/Card";
-import { getTimeAgo } from "../../../utils/dateTime.util";
+import ProjectHeaderCard from "../../project/components/ProjectHeaderCard";
 
 const TaskPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
   const { loading: taskLoading, tasks } = useSelector(
     (state: RootState) => state.task
   );
-  const { loading: projectLoading, project } = useSelector(
-    (state: RootState) => state.project
+  const { loading: projectLoading, project, projectConfig } = useSelector(
+  (state: RootState) => state.project
   );
   const [openModal, setOpenModal] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskPayload | null>(null);
@@ -55,7 +50,7 @@ const TaskPage = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const [search, setSearch] = useState("");
-  const [filterByStatus, setFilterByStatus] = useState("all");
+  const [filterByStatus, setFilterByStatus] = useState("0");
   const [filterByPriority, setFilterByPriority] = useState("all");
   const [filterByMember, setFilterByMember] = useState<string | null>(null);
   const currentProjectRole = useRef<projectRole>("developer");
@@ -66,6 +61,7 @@ const TaskPage = () => {
 
   useEffect(() => {
     dispatch(getTasks(projectId));
+    dispatch(getProjectConfig(projectId));
   }, [dispatch, projectId]);
 
   useEffect(() => {
@@ -127,7 +123,7 @@ const TaskPage = () => {
   );
 
   const filteredTasks = tasks.filter((task) => {
-    if (filterByStatus !== "all" && task.status !== filterByStatus)
+    if (filterByStatus !== "0" && task.status !== filterByStatus)
       return false;
     if (filterByPriority !== "all" && task.priority !== filterByPriority)
       return false;
@@ -143,96 +139,20 @@ const TaskPage = () => {
 
   const hasActiveFilters =
     search !== "" ||
-    filterByStatus !== "all" ||
+    filterByStatus !== "0" ||
     filterByPriority !== "all" ||
     filterByMember;
 
-  const StatusBadge = ({ status }: { status: Project["status"] }) => {
-    const config = {
-      pending: {
-        bg: "bg-gray-100",
-        text: "text-gray-700",
-        icon: Circle,
-        label: "Pending",
-      },
-      "in-progress": {
-        bg: "bg-yellow-100",
-        text: "text-yellow-700",
-        icon: AlertCircle,
-        label: "In Progress",
-      },
-      completed: {
-        bg: "bg-green-100",
-        text: "text-green-700",
-        icon: CheckCircle2,
-        label: "Completed",
-      },
-    };
-    const { bg, text, icon: Icon, label } = config[status];
-    return (
-      <span
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium ${bg} ${text}`}
-      >
-        <Icon size={14} />
-        {label}
-      </span>
-    );
-  };
-
   if (taskLoading || projectLoading) return <Loader />;
 
+  const taskStages = projectConfig?.TaskStages.filter(t => t.isActive).sort((a,b) => a.order - b.order);
+  const statusOptions = taskStages?.map(stage => ({ label: stage.name, value: stage._id })) || [];
+  const stagesCount = taskStages?.length || 0;
   return (
     <>
-      <div className="space-y-5">
-        {project && (
-          <Card className="bg-white p-7">
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="flex-1">
-                {/* Header */}
-                <div className="flex justify-between flex-wrap gap-4 border-b border-gray-100 mb-2 pb-2">
-                  <div className="flex gap-3 items-start">
-                    <button
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                      onClick={() => navigate(-1)}
-                    >
-                      <ArrowLeft size={22} className="text-gray-600" />
-                    </button>
-
-                    <div className="space-y-1">
-                      <h1 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-                        {project.name}
-                      </h1>
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
-                        <Clock size={12} /> Updated{" "}
-                        {getTimeAgo(project.updatedAt)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col items-end text-sm text-gray-600 gap-2">
-                    <StatusBadge status={project.status} />
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium bg-gray-100 text-gray-700`}
-                    >
-                      <Calendar size={14} className="text-green-500" />
-                      {new Date(project.startDate).toLocaleDateString()} -{" "}
-                      {new Date(project.endDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Description */}
-                {project.description && (
-                  <div
-                    className="description-box max-h-[215px] hide-scrollbar"
-                    dangerouslySetInnerHTML={{
-                      __html: project.description,
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          </Card>
+      <div className={stagesCount < 4 ?'max-w-7xl mx-auto space-y-5' : 'space-y-5'}>
+        {project && projectConfig &&(
+          <ProjectHeaderCard project={project} currentProjectRole={currentProjectRole.current}/>
         )}
 
         {/* Tasks Section */}
@@ -279,12 +199,7 @@ const TaskPage = () => {
                 onChange={(e) =>
                   setFilterByStatus((e.target as HTMLSelectElement).value)
                 }
-                options={[
-                  { label: "All Status", value: "all" },
-                  { label: "To Do", value: "todo" },
-                  { label: "In Progress", value: "in-progress" },
-                  { label: "Completed", value: "completed" },
-                ]}
+                options={[{ label: "All", value: "0" }, ...statusOptions]}
               />
               <FormSelect
                 type="select"
@@ -307,7 +222,7 @@ const TaskPage = () => {
                   <button
                     onClick={() => {
                       setSearch("");
-                      setFilterByStatus("all");
+                      setFilterByStatus("0");
                       setFilterByPriority("all");
                       setFilterByMember(null);
                     }}
@@ -319,37 +234,20 @@ const TaskPage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-[repeat(var(--cols),minmax(0,1fr))]" style={{ "--cols": stagesCount } as React.CSSProperties}>
+              {taskStages?.map((stage,_index) => 
               <TaskColumn
-                title="To Do"
-                status="todo"
-                icon={<Circle className="text-blue-500" size={20} />}
-                tasks={filteredTasks.filter((t) => t.status === "todo")}
+                key={stage._id}
+                title={stage.name}
+                status={stage._id}
+                icon={_index == 0 ? <Circle className="text-blue-500" size={20} /> : _index == stagesCount-1 ? <CheckCircle className="text-blue-500" size={20} /> : <Clock className="text-yellow-500" size={20} />}
+                tasks={filteredTasks.filter((t) => t.status.toString() === stage._id)}
                 onDrop={handleDrop}
                 onEdit={handleEditTask}
                 onDelete={handleDeleteClick}
                 currentProjectRole={currentProjectRole.current}
               />
-              <TaskColumn
-                title="In Progress"
-                status="in-progress"
-                icon={<Clock className="text-yellow-500" size={20} />}
-                tasks={filteredTasks.filter((t) => t.status === "in-progress")}
-                onDrop={handleDrop}
-                onEdit={handleEditTask}
-                onDelete={handleDeleteClick}
-                currentProjectRole={currentProjectRole.current}
-              />
-              <TaskColumn
-                title="Completed"
-                status="completed"
-                icon={<CheckCircle2 className="text-green-500" size={20} />}
-                tasks={filteredTasks.filter((t) => t.status === "completed")}
-                onDrop={handleDrop}
-                onEdit={handleEditTask}
-                onDelete={handleDeleteClick}
-                currentProjectRole={currentProjectRole.current}
-              />
+              )}
             </div>
           </div>
 
@@ -405,6 +303,7 @@ const TaskPage = () => {
           initialValues={editingTask}
           setShowModal={setOpenModal}
           projectId={projectId}
+          projectConfig={projectConfig}
           allMembers={{
             members: project?.members || [],
             pendingMembers: project?.pendingMembers || [],

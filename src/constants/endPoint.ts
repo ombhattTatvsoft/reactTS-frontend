@@ -16,6 +16,8 @@ export const PROJECT_ENDPOINTS = {
     EDIT_Project : '/project/editProject',
     DELETE_Project : '/project/deleteProject',
     PROJECT_MEMBERS : '/project/getProjectMembers',
+    GET_PROJECTCONFIG: '/project/getProjectConfig',
+    UPDATE_TASKSTAGES: '/project/projectConfig/updateTaskStages',
 }
 
 export const NOTIFICATION_ENDPOINTS = {

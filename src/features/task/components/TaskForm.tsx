@@ -14,23 +14,27 @@ import { createTask, editTask, getTasks, type Task } from "../taskSlice";
 import { getUserData } from "../../../utils/manageUserData";
 import AttachmentUploaderFormikWrapper from "./AttachmentUploaderFormik";
 import FormRichTextEditor from "../../../common/components/UI/FormRichTextEditor";
-import type { Project } from "../../project/projectSlice";
+import type { Project, ProjectConfigResponse } from "../../project/projectSlice";
 
 interface TaskFormProps {
   initialValues: TaskPayload | null;
   setShowModal: (value: boolean) => void;
   projectId: string;
   allMembers: {members: Project['members'], pendingMembers: Project['pendingMembers']};
+  projectConfig: ProjectConfigResponse['projectConfig'];
 }
 const TaskForm: React.FC<TaskFormProps> = ({
   initialValues,
   setShowModal,
   projectId,
   allMembers,
+  projectConfig,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const currentUserId = getUserData()._id;
   const isUpdate = Boolean(initialValues);
+
+  const statusOptions = useMemo(() => projectConfig?.TaskStages.filter(t => t.isActive).sort((a,b) => a.order - b.order).map(stage => ({ label: stage.name, value: stage._id })) || [],[projectConfig?.TaskStages]);
 
   const newInitialValues = useMemo(
     () => ({
@@ -38,7 +42,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       projectId,
       title: initialValues?.title || "",
       description: initialValues?.description || "",
-      status: initialValues?.status || ("todo" as Task["status"]),
+      status: initialValues?.status || "0",
       priority: initialValues?.priority || ("medium" as Task["priority"]),
       assignee: initialValues?.assignee || "",
       dueDate: initialValues?.dueDate || null,
@@ -78,11 +82,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       createSelectDropdown({
         name: "status",
         label: "Status",
-        options: [
-          { value: "todo", label: "To Do" },
-          { value: "in-progress", label: "In Progress" },
-          { value: "completed", label: "Completed" },
-        ],
+        options: statusOptions,
         containerclassname: "w-1/2 px-2",
       }),
       createSelectDropdown({
@@ -128,7 +128,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
         containerclassname: "px-2 w-full flex align-center justify-end",
       }),
     ],
-    [allMembers.members, allMembers.pendingMembers, currentUserId, isUpdate]
+    [allMembers.members, allMembers.pendingMembers, currentUserId, isUpdate, statusOptions]
   );
 
   const handleAdd = useCallback(

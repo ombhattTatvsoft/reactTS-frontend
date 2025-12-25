@@ -11,7 +11,7 @@ export const TaskSchema = (isUpdate: boolean) => {
     projectId: Yup.string(),
     title: Yup.string().trim().max(30, SCHEMA.TITLE_MAX).required(SCHEMA.TITLE_REQ),
     description: Yup.string().max(500, SCHEMA.DESC_MAX).default(""),
-    status: Yup.string().oneOf(["todo", "in-progress", "completed"]).required(SCHEMA.STATUS_REQ),
+    status: Yup.string().required(SCHEMA.STATUS_REQ),
     priority: Yup.string().oneOf(["low", "medium", "high"]).required(SCHEMA.PRIORITY_REQ),
     assignee: Yup.string().required(SCHEMA.ASSIGNEE_REQ),
     dueDate: Yup.date()

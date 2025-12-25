@@ -5,7 +5,7 @@ import type { ProjectPayload } from "./projectSchema";
 import projectApi from "./projectApi";
 import type { user } from "../auth/authSlice";
 
-interface projectState extends ProjectsResponse {
+interface projectState extends ProjectsResponse, ProjectConfigResponse {
   loading: boolean;
   project: Project | null;
 }
@@ -17,6 +17,7 @@ const initialState: projectState = {
     myProjects: [],
     assignedProjects: [],
   },
+  projectConfig: null,
   // allMembers : {
   //   members: [],
   //   pendingMembers: [],
@@ -58,6 +59,23 @@ export interface ProjectResponse {
   project: Project;
 }
 
+export interface TaskStage{
+  _id: string;
+  name: string;
+  order: number;
+  isEditable: boolean;
+  isActive: boolean;
+}
+export interface ProjectConfigResponse{
+  projectConfig : {
+    projectId: string;
+    TaskStages: TaskStage[];
+  } | null;
+}
+export interface TaskStagesPayload{
+  projectId: string;
+  TaskStages: TaskStage[];
+}
 // export interface ProjectMembersResponse {
 //   allMembers: {
 //     members: Project['members'];
@@ -131,6 +149,28 @@ export const getProject = createAsyncThunk<ApiResponse<ProjectResponse>,string>(
   }
 );
 
+export const getProjectConfig = createAsyncThunk<ApiResponse<ProjectConfigResponse>,string>(
+  "project/getProjectConfig",
+  async (id, { rejectWithValue }) => {
+    try {
+      return await projectApi.getProjectConfig(id);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
+export const updateTaskStages = createAsyncThunk<ApiResponse<ProjectConfigResponse>, TaskStagesPayload>(
+  "project/projectConfig/updateTaskStages",
+  async (payload, { rejectWithValue }) => {
+    try {
+      return await projectApi.updateTaskStages(payload);
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
+
 const projectSlice = createSlice({
   name: "project",
   initialState,
@@ -141,10 +181,19 @@ const projectSlice = createSlice({
       state.loading = false;
       state.project = action.payload.data!.project;
     })
-      .addCase(getProjects.fulfilled, (state, action) => {
-        state.loading = false;
-        state.projects = action.payload.data!.projects;
-      })
+    .addCase(getProjects.fulfilled, (state, action) => {
+      state.loading = false;
+      state.projects = action.payload.data!.projects;
+    })
+    .addCase(getProjectConfig.fulfilled, (state, action) => {
+      state.loading = false;
+      state.projectConfig = action.payload.data!.projectConfig;
+    })
+    .addCase(updateTaskStages.fulfilled, (state, action) => {
+      state.loading = false;
+      state.projectConfig = action.payload.data!.projectConfig;
+      toast.success(action.payload.message);
+    })
       // .addCase(getProjectMembers.fulfilled, (state, action) => {
       //   state.loading = false;
       //   state.allMembers = action.payload.data!.allMembers;
@@ -157,13 +206,13 @@ const projectSlice = createSlice({
         }
       )
       .addMatcher(
-        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending,getProject.pending),
+        isAnyOf(createProject.pending, getProjects.pending,editProject.pending,deleteProject.pending,getProject.pending, getProjectConfig.pending, updateTaskStages.pending),
         (state) => {
           state.loading = true;
         }
       )
       .addMatcher(
-        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected,getProject.rejected),
+        isAnyOf(createProject.rejected, getProjects.rejected,editProject.rejected,deleteProject.rejected,getProject.rejected, getProjectConfig.rejected, updateTaskStages.rejected),
         (state, action) => {
           state.loading = false;
           console.log(action.payload);

@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import MemberAvatarGroup from "./MemberAvatarGroup";
 import { Tooltip } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { formatDate } from "../../../utils/dateTime.util";
 
 interface ProjectCardProps {
   isAssigned: boolean;
@@ -12,11 +13,6 @@ interface ProjectCardProps {
   onEdit?: () => void;
   onDelete?: () => void;
 }
-
-const formatDate = (date: Date | string) => {
-  const d = new Date(date);
-  return d.toISOString().split("T")[0];
-};
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
   isAssigned,

@@ -33,28 +33,33 @@ import socket from "../../../utils/socket";
 import CommentsList from "../components/CommentsList";
 import ActivityTimeline from "../components/ActivityTimeline";
 
-const StatusBadge = ({ status }: { status: Task["status"] }) => {
-  const config = {
-    todo: {
-      bg: "bg-gray-100",
-      text: "text-gray-700",
-      icon: Circle,
-      label: "To Do",
-    },
-    "in-progress": {
-      bg: "bg-yellow-100",
-      text: "text-yellow-700",
-      icon: AlertCircle,
-      label: "In Progress",
-    },
-    completed: {
-      bg: "bg-green-100",
-      text: "text-green-700",
-      icon: CheckCircle2,
-      label: "Completed",
-    },
-  };
-  const { bg, text, icon: Icon, label } = config[status];
+const StatusBadge = ({ status }: { status: string }) => {
+  const config = () => {
+    switch (status) {
+      case "To Do":
+        return {
+          bg: "bg-gray-100",
+          text: "text-gray-700",
+          icon: Circle,
+          label: status,
+        };
+      case "Completed":
+        return {
+          bg: "bg-green-100",
+          text: "text-green-700",
+          icon: CheckCircle2,
+          label: status,
+        };
+      default:
+        return {
+          bg: "bg-yellow-100",
+          text: "text-yellow-700",
+          icon: AlertCircle,
+          label: status,
+        };
+    }
+  }
+  const { bg, text, icon: Icon, label } = config();
   return (
     <span
       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium ${bg} ${text}`}
@@ -154,7 +159,7 @@ const TaskDetailPage = () => {
 
   if (!task || loading) return <Loader />;
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <Card className="bg-white p-7">
         <div className="flex justify-between flex-wrap gap-4">
@@ -247,7 +252,6 @@ const TaskDetailPage = () => {
             <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
               Task Details
             </h3>
-
             <div className="space-y-6">
               {/* Assignee */}
               <div className="flex gap-3 items-start">
